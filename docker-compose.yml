@@ -1,0 +1,75 @@
+services:
+  postgres-central:
+    image: pgvector/pgvector:pg16
+    container_name: tcc-postgres-central
+    environment:
+      POSTGRES_DB: boarding_central
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-central-data:/var/lib/postgresql/data
+
+  postgres-edge:
+    image: postgres:16
+    container_name: tcc-postgres-edge
+    environment:
+      POSTGRES_DB: boarding_edge
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres-edge-data:/var/lib/postgresql/data
+
+  central-api:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/central-api.Dockerfile
+    container_name: tcc-central-api
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres-central
+
+  edge-api:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/edge-api.Dockerfile
+    container_name: tcc-edge-api
+    ports:
+      - "8001:8001"
+    depends_on:
+      - postgres-edge
+
+  vision-service:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/vision-service.Dockerfile
+    container_name: tcc-vision-service
+    ports:
+      - "8002:8002"
+
+  sync-worker:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/sync-worker.Dockerfile
+    container_name: tcc-sync-worker
+    depends_on:
+      - central-api
+      - edge-api
+
+  admin-web:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/admin-web.Dockerfile
+    container_name: tcc-admin-web
+    ports:
+      - "5173:5173"
+    depends_on:
+      - central-api
+
+volumes:
+  postgres-central-data:
+  postgres-edge-data:
