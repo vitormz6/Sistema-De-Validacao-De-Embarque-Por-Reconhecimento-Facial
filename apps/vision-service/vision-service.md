@@ -3,8 +3,8 @@
 API isolada de visão computacional: detecção facial, score de qualidade,
 liveness básico e geração de embedding (RF03, RF08). Não tem acesso a
 banco de dados nem regra de negócio — é puramente uma API de inferência,
-chamada tanto pela `central-api` (cadastro biométrico) quanto, no futuro,
-pelo `edge-api` (validação de embarque no ônibus).
+chamada pela `central-api` (cadastro biométrico, RF02/RF03) e pelo
+`edge-api` (geração de embedding na validação de embarque, RF07/RF08).
 
 ## Stack
 
@@ -113,6 +113,6 @@ depois do primeiro boot para validar ponta a ponta.
 ## Pendências
 
 - Sem testes de carga/latência (RNF01 exige ≤2s por tentativa ponta a
-  ponta — vale medir quando o `edge-api` existir).
+  ponta — vale medir com o stack completo no ar via `docker compose up`).
 - Liveness é só heurística MVP; evolução para modelo treinado de
   anti-spoofing é trabalho pós-MVP (RFC 4.3).

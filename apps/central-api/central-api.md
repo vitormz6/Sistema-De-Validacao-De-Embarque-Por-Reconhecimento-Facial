@@ -38,11 +38,14 @@ arquitetura em camadas: `router` (HTTP) → `service` (regras de negócio) →
 
 ## Vision Service
 
-`biometrics` depende do `vision-service` (ainda não implementado) para
-detecção facial e geração de embedding via `POST /embeddings/generate`. O
-contrato esperado está documentado em
-`app/modules/biometrics/vision_client.py`. Enquanto o `vision-service` não
-existir, os testes de biometria usam um cliente mockado.
+`biometrics` depende do `vision-service` para detecção facial e geração de
+embedding via `POST /embeddings/generate`. O contrato está em
+`app/modules/biometrics/vision_client.py`. O serviço está implementado e
+orquestrado pelo `docker-compose.yml` (porta 8002) — ver `vision-service.md`.
+
+Os testes de biometria usam um cliente mockado (SQLite em memória não suporta
+pgvector), então a integração real deve ser validada manualmente com
+`docker compose up` antes da entrega — ver seção de pendências abaixo.
 
 ## Propagação de status no pull incremental (`SyncService.pull`)
 

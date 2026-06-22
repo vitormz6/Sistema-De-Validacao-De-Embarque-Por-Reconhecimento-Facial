@@ -1,9 +1,10 @@
 # Operator Web
 
 Tela kiosk do validador de embarque, projetada para rodar em um tablet ou
-mini-PC embarcado no ônibus. Exibe o feed da câmera, captura um frame a
-pedido do operador e apresenta o resultado (`AUTORIZADO` / `NEGADO`) com
-feedback visual imediato e reset automático em 4 s.
+mini-PC embarcado no ônibus. Exibe o feed da câmera, detecta rostos
+automaticamente via `TinyFaceDetector` (client-side) e dispara a validação
+sem interação manual, apresentando o resultado (`AUTORIZADO` / `NEGADO`)
+com feedback visual e reset automático em 4 s.
 
 ## Stack
 
@@ -12,6 +13,9 @@ feedback visual imediato e reset automático em 4 s.
   `useQuery` com `refetchInterval` para polling do status de sincronização.
 - **axios** — cliente HTTP sem `Authorization` header (o `edge-api`
   não autentica chamadas locais por design — ver `edge-api.md`).
+- **@vladmandic/face-api** — detecção facial client-side com modelo
+  `TinyFaceDetector` (pesos servidos em `public/models/`). Dispara captura
+  automática quando `score ≥ 0.6`, com cooldown de 4 s entre capturas.
 - **CSS Modules sobre `src/styles/tokens.css`** — mesmos tokens do
   `admin-web`, sem tema escuro (kiosk fixo, sem toggle de tema).
 - **Vitest + Testing Library** — setup jsdom mínimo.
@@ -22,19 +26,25 @@ feedback visual imediato e reset automático em 4 s.
 
 | Estado | O que o operador vê |
 |--------|----------------------|
-| `idle` | Feed da câmera ativo + botão "Capturar e Validar" habilitado |
-| `processing` | Overlay de spinner sobre a câmera; botão desabilitado |
+| `idle` | Feed da câmera + overlay de scanning; detecção automática ativa |
+| `processing` | Overlay de spinner sobre a câmera; detecção pausada |
 | `result` | Card AUTORIZADO/NEGADO substitui a câmera; reset automático em 4 s |
 
 ### Fluxo de validação (RF07–RF09)
 
-1. Operador pressiona o botão de captura.
-2. Um frame JPEG é extraído do `<video>` via `<canvas>` oculto.
+1. Loop `requestAnimationFrame` detecta rostos via `TinyFaceDetector`
+   enquanto o estado é `idle`.
+2. Ao detectar um rosto (`score ≥ 0.6`) sem cooldown ativo, um frame
+   JPEG é extraído do `<video>` via `<canvas>` oculto.
 3. `POST /local/validate-boarding` (multipart/form-data) ao `edge-api` local.
 4. Card de resultado exibe:
    - **AUTORIZADO** (verde): nome do passageiro, percentual de confiança.
    - **NEGADO** (vermelho): motivo traduzido para PT-BR (`ValidationStatus`).
-5. Após 4 s, tela retorna ao estado `idle` automaticamente.
+5. Respostas `DENIED_FACE_NOT_FOUND` retornam silenciosamente ao estado
+   `idle` sem exibir card (face detectada client-side mas não encontrada
+   pelo `edge-api` — captura de baixa qualidade ou rosto muito distante).
+6. Após 4 s, tela retorna ao estado `idle` automaticamente; cooldown
+   também expira, permitindo nova captura.
 
 ### Indicador de sincronização (RF14)
 
@@ -83,16 +93,26 @@ O `operator-web` é uma **tela única de kiosk** — não há login, navegação
 entre páginas nem URL compartilhável. Adicionar React Router aumentaria a
 complexidade sem benefício funcional.
 
-## Câmera
+## Câmera e detecção automática
 
 `CameraCapture` chama `navigator.mediaDevices.getUserMedia` com
 `facingMode: "user"` (câmera frontal). Se o navegador negar a permissão,
-o componente exibe um aviso e desabilita o botão — o operador precisa
+o componente exibe um aviso e a detecção não inicia — o operador precisa
 conceder a permissão manualmente.
 
+O modelo `TinyFaceDetector` é carregado uma vez na montagem do componente a
+partir de `public/models/`. Enquanto carrega (câmera + modelo), o status
+exibe "Iniciando câmera...". O loop de detecção só começa após ambos
+estarem prontos.
+
+Sobre o overlay de detecção: um `<canvas>` sobreposto ao `<video>` desenha
+cantos estilizados ao redor do rosto detectado em tempo real. Quando nenhum
+rosto é detectado, exibe uma animação de scanning estática com linha
+horizontal pulsante.
+
 Para tablet horizontal apontando para a porta de embarque, alterar para
-`facingMode: "environment"` (câmera traseira) é a próxima evolução —
-pode ser parametrizado via `VITE_CAMERA_FACING_MODE`.
+`facingMode: "environment"` (câmera traseira) pode ser parametrizado via
+`VITE_CAMERA_FACING_MODE`.
 
 ## Rodando
 
@@ -111,8 +131,7 @@ acessível pelo tablet — ver `.env.example` para mais detalhes.
 
 ## Pendências / próximos passos
 
-- Captura automática por detecção de rosto (hoje é sob demanda manual).
-- `VITE_CAMERA_FACING_MODE` para configurar câmera frontal/traseira.
-- Cooldown configurável entre capturas para evitar cliques acidentais.
+- `VITE_CAMERA_FACING_MODE` para configurar câmera frontal/traseira via env.
+- `VITE_CAPTURE_COOLDOWN_MS` para tornar o cooldown de 4 s configurável.
 - Build de produção com nginx (mesma razão que o `admin-web`).
 - Testes de integração contra o `edge-api` real.

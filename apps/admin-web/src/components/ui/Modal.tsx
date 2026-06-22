@@ -12,6 +12,7 @@ interface ModalProps {
   onCancel: () => void;
   onOk?: () => void;
   okText?: string;
+  okVariant?: "primary" | "danger";
   cancelText?: string;
   confirmLoading?: boolean;
 }
@@ -23,6 +24,7 @@ export function Modal({
   onCancel,
   onOk,
   okText = "Confirmar",
+  okVariant = "primary",
   cancelText = "Cancelar",
   confirmLoading,
 }: ModalProps) {
@@ -60,7 +62,7 @@ export function Modal({
             {cancelText}
           </Button>
           {onOk && (
-            <Button variant="primary" onClick={onOk} loading={confirmLoading}>
+            <Button variant={okVariant} onClick={onOk} loading={confirmLoading}>
               {okText}
             </Button>
           )}

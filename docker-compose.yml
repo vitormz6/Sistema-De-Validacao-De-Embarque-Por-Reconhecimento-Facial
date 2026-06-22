@@ -71,7 +71,7 @@ services:
       DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres-edge:5432/boarding_edge
       CENTRAL_API_URL: http://central-api:8000
       EDGE_SYNC_API_KEY: change-me-edge-sync-key
-      SYNC_INTERVAL_SECONDS: 30
+      SYNC_INTERVAL_SECONDS: 10
     depends_on:
       - postgres-edge
       - central-api

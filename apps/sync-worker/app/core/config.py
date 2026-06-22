@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     CENTRAL_API_TIMEOUT_SECONDS: float = 10.0
     EDGE_SYNC_API_KEY: str = Field(default="change-me-edge-sync-key")
 
-    SYNC_INTERVAL_SECONDS: float = 30.0
+    SYNC_INTERVAL_SECONDS: float = 10.0
 
     model_config = SettingsConfigDict(
         env_file=".env",
