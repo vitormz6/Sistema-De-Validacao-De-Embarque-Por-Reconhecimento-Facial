@@ -1,0 +1,36 @@
+.dropzone {
+  border: 1.5px dashed var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.12s ease, background-color 0.12s ease;
+}
+
+.dropzone:hover,
+.dragging {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+}
+
+.icon {
+  width: 28px;
+  height: 28px;
+  color: var(--color-text-tertiary);
+  margin-bottom: var(--space-2);
+}
+
+.text {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.hint {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+  margin-top: var(--space-1);
+}
+
+.hiddenInput {
+  display: none;
+}

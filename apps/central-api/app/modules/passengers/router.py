@@ -4,6 +4,8 @@ from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database.session import get_db_session
+from app.modules.auth.dependencies import get_current_user
+from app.modules.auth.model import User
 from app.modules.passengers.schema import (
     PassengerCreate,
     PassengerListResponse,
@@ -33,6 +35,7 @@ def get_passenger_service(
 async def create_passenger(
     payload: PassengerCreate,
     service: PassengerService = Depends(get_passenger_service),
+    _current_user: User = Depends(get_current_user),
 ) -> PassengerResponse:
     passenger = await service.create_passenger(payload)
     return PassengerResponse.model_validate(passenger)
@@ -48,6 +51,7 @@ async def list_passengers(
     status_filter: PassengerStatus | None = Query(default=None, alias="status"),
     search: str | None = Query(default=None, min_length=1),
     service: PassengerService = Depends(get_passenger_service),
+    _current_user: User = Depends(get_current_user),
 ) -> PassengerListResponse:
     passengers, total = await service.list_passengers(
         page=page,
@@ -71,6 +75,7 @@ async def list_passengers(
 async def get_passenger(
     passenger_id: uuid.UUID,
     service: PassengerService = Depends(get_passenger_service),
+    _current_user: User = Depends(get_current_user),
 ) -> PassengerResponse:
     passenger = await service.get_passenger(passenger_id)
     return PassengerResponse.model_validate(passenger)
@@ -84,6 +89,7 @@ async def update_passenger(
     passenger_id: uuid.UUID,
     payload: PassengerUpdate,
     service: PassengerService = Depends(get_passenger_service),
+    _current_user: User = Depends(get_current_user),
 ) -> PassengerResponse:
     passenger = await service.update_passenger(passenger_id, payload)
     return PassengerResponse.model_validate(passenger)
@@ -96,6 +102,7 @@ async def update_passenger(
 async def block_passenger(
     passenger_id: uuid.UUID,
     service: PassengerService = Depends(get_passenger_service),
+    _current_user: User = Depends(get_current_user),
 ) -> PassengerResponse:
     passenger = await service.block_passenger(passenger_id)
     return PassengerResponse.model_validate(passenger)
@@ -108,6 +115,7 @@ async def block_passenger(
 async def activate_passenger(
     passenger_id: uuid.UUID,
     service: PassengerService = Depends(get_passenger_service),
+    _current_user: User = Depends(get_current_user),
 ) -> PassengerResponse:
     passenger = await service.activate_passenger(passenger_id)
     return PassengerResponse.model_validate(passenger)

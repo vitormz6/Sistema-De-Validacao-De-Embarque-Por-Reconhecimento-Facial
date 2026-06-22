@@ -1,0 +1,20 @@
+.revokeButton {
+  margin-top: var(--space-3);
+}
+
+.captureArea {
+  margin-top: var(--space-4);
+}
+
+.preview {
+  margin-top: var(--space-4);
+}
+
+.previewImage {
+  max-width: 240px;
+  border-radius: var(--radius-md);
+}
+
+.errorAlert {
+  margin-top: var(--space-4);
+}

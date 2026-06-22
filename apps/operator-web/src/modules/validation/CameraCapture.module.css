@@ -1,0 +1,196 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  gap: var(--space-3);
+}
+
+/* ─── Camera wrapper ─── */
+
+.cameraWrapper {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  background: #000;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  transition: box-shadow 0.3s ease;
+}
+
+.cameraActive {
+  box-shadow:
+    var(--shadow-lg),
+    0 0 0 3px rgba(99, 102, 241, 0.5),
+    0 0 32px rgba(99, 102, 241, 0.25);
+}
+
+.video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ─── Detection canvas overlay ─── */
+
+.detectionCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* ─── Scanning animation overlay (shown when idle, no face) ─── */
+
+.scanOverlay {
+  position: absolute;
+  inset: var(--space-5);
+  pointer-events: none;
+}
+
+.scanCornerTL,
+.scanCornerTR,
+.scanCornerBL,
+.scanCornerBR {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  border-color: rgba(99, 102, 241, 0.7);
+  border-style: solid;
+  animation: cornerPulse 2s ease-in-out infinite;
+}
+
+.scanCornerTL {
+  top: 0;
+  left: 0;
+  border-width: 2px 0 0 2px;
+  border-radius: 4px 0 0 0;
+}
+
+.scanCornerTR {
+  top: 0;
+  right: 0;
+  border-width: 2px 2px 0 0;
+  border-radius: 0 4px 0 0;
+}
+
+.scanCornerBL {
+  bottom: 0;
+  left: 0;
+  border-width: 0 0 2px 2px;
+  border-radius: 0 0 0 4px;
+}
+
+.scanCornerBR {
+  bottom: 0;
+  right: 0;
+  border-width: 0 2px 2px 0;
+  border-radius: 0 0 4px 0;
+}
+
+@keyframes cornerPulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+.scanLine {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(99, 102, 241, 0.8) 40%,
+    rgba(129, 140, 248, 1) 50%,
+    rgba(99, 102, 241, 0.8) 60%,
+    transparent 100%
+  );
+  animation: scanMove 2.4s ease-in-out infinite;
+  box-shadow: 0 0 8px rgba(99, 102, 241, 0.6);
+}
+
+@keyframes scanMove {
+  0% { top: 8px; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { top: calc(100% - 10px); opacity: 0; }
+}
+
+/* ─── Processing overlay ─── */
+
+.processingOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(2px);
+}
+
+.spinner {
+  display: block;
+  width: 52px;
+  height: 52px;
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ─── Error overlay ─── */
+
+.errorOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  padding: var(--space-5);
+  text-align: center;
+}
+
+.errorIcon {
+  font-size: 40px;
+}
+
+.errorText {
+  font-size: var(--font-size-md);
+  color: #fca5a5;
+  max-width: 320px;
+}
+
+/* ─── Status label ─── */
+
+.statusLabel {
+  font-size: var(--font-size-md);
+  color: var(--color-text-secondary);
+  text-align: center;
+  letter-spacing: 0.01em;
+  padding: var(--space-2) 0;
+  flex-shrink: 0;
+}
+
+.statusProcessing {
+  color: #818cf8;
+}
+
+/* ─── Hidden capture canvas ─── */
+
+.hiddenCanvas {
+  display: none;
+}

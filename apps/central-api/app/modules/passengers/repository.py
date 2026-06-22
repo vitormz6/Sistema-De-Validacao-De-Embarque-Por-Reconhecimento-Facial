@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import uuid
+from datetime import datetime
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -72,6 +75,33 @@ class PassengerRepository:
         await self.session.flush()
         await self.session.refresh(passenger)
         return passenger
+
+    async def list_active(self, since: datetime | None = None) -> list[Passenger]:
+        """
+        Used by the sync module (RF06) to build the snapshot/delta of
+        passengers an edge device should cache locally. Unlike `list`, this
+        is unpaginated by design — edge sync payloads are bounded by
+        `since` instead of page size.
+
+        On the very first pull (`since=None`) this only sends currently
+        active passengers — no point handing the edge a blocked passenger
+        it's never heard of. On every incremental pull, though, it must
+        NOT filter by status: a passenger who just got blocked needs to be
+        included precisely BECAUSE they stopped being active, so the edge
+        learns about the transition. Filtering by status here would mean a
+        blocked passenger silently drops out of every future delta forever,
+        leaving the edge cache permanently stuck on the old "ACTIVE" status
+        (this was a real bug — see edge-api.md / central-api.md).
+        """
+        statement = select(Passenger)
+
+        if since is None:
+            statement = statement.where(Passenger.status == PassengerStatus.ACTIVE.value)
+        else:
+            statement = statement.where(Passenger.updated_at > since)
+
+        result = await self.session.execute(statement)
+        return list(result.scalars().all())
 
     async def exists_by_document_number(
         self,
