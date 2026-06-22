@@ -15,6 +15,8 @@ COPY apps/central-api/ ./
 RUN pip install --upgrade pip \
     && pip install -e .
 
+RUN chmod +x entrypoint.sh
+
 EXPOSE 8000
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+ENTRYPOINT ["sh", "entrypoint.sh"]

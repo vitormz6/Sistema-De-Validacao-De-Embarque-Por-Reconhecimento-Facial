@@ -1,0 +1,26 @@
+.heading {
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  margin-bottom: var(--space-5);
+}
+
+.filters {
+  margin-bottom: var(--space-4);
+}
+
+.statusSelect {
+  width: 220px;
+}
+
+.busInput {
+  max-width: 160px;
+}
+
+.dateLabel {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.alert {
+  margin-bottom: var(--space-4);
+}

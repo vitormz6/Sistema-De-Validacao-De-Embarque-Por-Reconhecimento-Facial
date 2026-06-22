@@ -19,6 +19,29 @@ class ConflictError(DomainError):
         super().__init__(message=message, status_code=status.HTTP_409_CONFLICT)
 
 
+class ValidationFailedError(DomainError):
+    def __init__(self, message: str = "Validation failed") -> None:
+        # Literal status code: Starlette has renamed the 422 constant across
+        # versions (HTTP_422_UNPROCESSABLE_ENTITY -> _CONTENT); the numeric
+        # value itself is stable, so we avoid depending on either name.
+        super().__init__(message=message, status_code=422)
+
+
+class UnauthorizedError(DomainError):
+    def __init__(self, message: str = "Invalid authentication credentials") -> None:
+        super().__init__(message=message, status_code=status.HTTP_401_UNAUTHORIZED)
+
+
+class ForbiddenError(DomainError):
+    def __init__(self, message: str = "You do not have permission to perform this action") -> None:
+        super().__init__(message=message, status_code=status.HTTP_403_FORBIDDEN)
+
+
+class UpstreamServiceError(DomainError):
+    def __init__(self, message: str = "Upstream service error") -> None:
+        super().__init__(message=message, status_code=status.HTTP_502_BAD_GATEWAY)
+
+
 def register_exception_handlers(app: FastAPI) -> None:
     @app.exception_handler(DomainError)
     async def domain_error_handler(request: Request, exc: DomainError) -> JSONResponse:

@@ -32,16 +32,24 @@ services:
       - "8000:8000"
     depends_on:
       - postgres-central
+      - vision-service
 
   edge-api:
     build:
       context: .
       dockerfile: infrastructure/docker/edge-api.Dockerfile
     container_name: tcc-edge-api
+    environment:
+      BUS_ID: bus-01
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres-edge:5432/boarding_edge
+      VISION_SERVICE_URL: http://vision-service:8002
+      CENTRAL_API_URL: http://central-api:8000
     ports:
       - "8001:8001"
     depends_on:
       - postgres-edge
+      - vision-service
+      - central-api
 
   vision-service:
     build:
@@ -50,13 +58,22 @@ services:
     container_name: tcc-vision-service
     ports:
       - "8002:8002"
+    volumes:
+      - insightface-models:/app/.insightface
 
   sync-worker:
     build:
       context: .
       dockerfile: infrastructure/docker/sync-worker.Dockerfile
     container_name: tcc-sync-worker
+    environment:
+      BUS_ID: bus-01
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres-edge:5432/boarding_edge
+      CENTRAL_API_URL: http://central-api:8000
+      EDGE_SYNC_API_KEY: change-me-edge-sync-key
+      SYNC_INTERVAL_SECONDS: 30
     depends_on:
+      - postgres-edge
       - central-api
       - edge-api
 
@@ -65,11 +82,30 @@ services:
       context: .
       dockerfile: infrastructure/docker/admin-web.Dockerfile
     container_name: tcc-admin-web
+    environment:
+      # Browser-facing, not container-facing — see apps/admin-web/.env.example
+      # for why this can't be the compose service name `central-api`.
+      VITE_API_BASE_URL: http://localhost:8000
     ports:
       - "5173:5173"
     depends_on:
       - central-api
 
+  operator-web:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/operator-web.Dockerfile
+    container_name: tcc-operator-web
+    environment:
+      # Browser-facing, not container-facing — see apps/operator-web/.env.example
+      # for why this can't be the compose service name `edge-api`.
+      VITE_EDGE_API_BASE_URL: http://localhost:8001
+    ports:
+      - "5174:5174"
+    depends_on:
+      - edge-api
+
 volumes:
   postgres-central-data:
   postgres-edge-data:
+  insightface-models:

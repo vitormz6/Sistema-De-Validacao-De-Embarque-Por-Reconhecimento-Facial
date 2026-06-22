@@ -1,0 +1,24 @@
+.headerRow {
+  margin-bottom: var(--space-5);
+}
+
+.heading {
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+}
+
+.filters {
+  margin-bottom: var(--space-4);
+}
+
+.searchInput {
+  max-width: 320px;
+}
+
+.statusSelect {
+  width: 160px;
+}
+
+.alert {
+  margin-bottom: var(--space-4);
+}

@@ -1,0 +1,72 @@
+.card {
+  width: 100%;
+  max-width: 480px;
+  border-radius: var(--radius-lg);
+  padding: var(--space-7) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+}
+
+.cardAuthorized {
+  background: var(--color-success-soft);
+  border: 2px solid var(--color-success);
+}
+
+.cardDenied {
+  background: var(--color-danger-soft);
+  border: 2px solid var(--color-danger);
+}
+
+.icon {
+  font-size: 72px;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.iconAuthorized {
+  color: var(--color-success);
+}
+
+.iconDenied {
+  color: var(--color-danger);
+}
+
+.statusText {
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.statusAuthorized {
+  color: var(--color-success);
+}
+
+.statusDenied {
+  color: var(--color-danger);
+}
+
+.passengerName {
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.detail {
+  font-size: var(--font-size-md);
+  color: var(--color-text-secondary);
+}
+
+.offlineTag {
+  font-size: var(--font-size-sm);
+  color: var(--color-warning);
+}
+
+.resetTimer {
+  margin-top: var(--space-2);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+}
