@@ -13,6 +13,8 @@ interface Props {
 
 const MODEL_URL = "/models";
 const SCORE_THRESHOLD = 0.6;
+/** Delay after face detection before triggering capture — stabilizes the frame. */
+const FACE_CAPTURE_DELAY_MS = 1_500;
 /** Minimum time between captures — prevents re-firing on the same person. */
 const CAPTURE_COOLDOWN_MS = 4_000;
 
@@ -22,6 +24,7 @@ export function CameraCapture({ onCapture, autoDetect, processing }: Props) {
   const captureCanvasRef = useRef<HTMLCanvasElement>(null);
   const rafIdRef = useRef<number | null>(null);
   const cooldownRef = useRef(false);
+  const captureTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [modelReady, setModelReady] = useState(false);
   const [streamReady, setStreamReady] = useState(false);
@@ -182,12 +185,20 @@ export function CameraCapture({ onCapture, autoDetect, processing }: Props) {
           setFaceDetected(hasFace);
           drawDetections(canvas, video, detections);
 
-          if (hasFace && !cooldownRef.current) {
-            cooldownRef.current = true;
-            captureFrame();
-            setTimeout(() => {
-              cooldownRef.current = false;
-            }, CAPTURE_COOLDOWN_MS);
+          if (hasFace && !cooldownRef.current && captureTimerRef.current === null) {
+            captureTimerRef.current = setTimeout(() => {
+              captureTimerRef.current = null;
+              cooldownRef.current = true;
+              captureFrame();
+              setTimeout(() => {
+                cooldownRef.current = false;
+              }, CAPTURE_COOLDOWN_MS);
+            }, FACE_CAPTURE_DELAY_MS);
+          }
+
+          if (!hasFace && captureTimerRef.current !== null) {
+            clearTimeout(captureTimerRef.current);
+            captureTimerRef.current = null;
           }
         }
       }
@@ -205,6 +216,10 @@ export function CameraCapture({ onCapture, autoDetect, processing }: Props) {
         cancelAnimationFrame(rafIdRef.current);
         rafIdRef.current = null;
       }
+      if (captureTimerRef.current !== null) {
+        clearTimeout(captureTimerRef.current);
+        captureTimerRef.current = null;
+      }
     };
   }, [modelReady, streamReady, autoDetect, captureFrame]);
 
@@ -213,7 +228,7 @@ export function CameraCapture({ onCapture, autoDetect, processing }: Props) {
     if (cameraError) return cameraError;
     if (!streamReady || !modelReady) return "Iniciando câmera...";
     if (processing) return "Validando...";
-    if (faceDetected) return "Rosto detectado — validando...";
+    if (faceDetected) return "Rosto detectado — aguardando...";
     return "Aguardando passageiro...";
   }
 
