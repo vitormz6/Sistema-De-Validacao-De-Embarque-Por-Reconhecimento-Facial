@@ -28,6 +28,15 @@ const STATUS_OPTIONS: { value: ValidationStatus; label: string }[] = [
   { value: "DENIED_PASSENGER_BLOCKED", label: "Passageiro bloqueado" },
 ];
 
+const STATUS_DISPLAY: Record<ValidationStatus, string> = {
+  AUTHORIZED: "Autorizado",
+  DENIED_NO_ACTIVE_TICKET: "Sem passagem",
+  DENIED_LOW_CONFIDENCE: "Baixa confiança",
+  DENIED_FACE_NOT_FOUND: "Rosto não encontrado",
+  DENIED_SPOOF_SUSPECTED: "Suspeita de fraude",
+  DENIED_PASSENGER_BLOCKED: "Passageiro bloqueado",
+};
+
 function statusVariant(status: ValidationStatus): "success" | "danger" {
   return status === "AUTHORIZED" ? "success" : "danger";
 }
@@ -57,72 +66,78 @@ export function ValidationsListPage() {
     {
       key: "captured_at",
       title: "Capturado em",
-      render: (validation) => dayjs(validation.captured_at).format("DD/MM/YYYY HH:mm"),
+      render: (v) => dayjs(v.captured_at).format("DD/MM/YYYY HH:mm"),
     },
-    { key: "bus_id", title: "Ônibus", render: (validation) => validation.bus_id },
+    { key: "bus_id", title: "Ônibus", render: (v) => v.bus_id },
     {
       key: "status",
       title: "Status",
-      render: (validation) => (
-        <Tag variant={statusVariant(validation.status)}>{validation.status}</Tag>
+      render: (v) => (
+        <Tag variant={statusVariant(v.status)}>{STATUS_DISPLAY[v.status]}</Tag>
       ),
     },
     {
       key: "confidence_score",
       title: "Confiança",
-      render: (validation) =>
-        validation.confidence_score != null ? `${(validation.confidence_score * 100).toFixed(0)}%` : "—",
+      render: (v) =>
+        v.confidence_score != null ? `${(v.confidence_score * 100).toFixed(0)}%` : "—",
     },
     {
       key: "is_offline",
-      title: "Offline",
-      render: (validation) =>
-        validation.is_offline ? <Tag>Offline</Tag> : <Tag variant="info">Online</Tag>,
+      title: "Captura",
+      render: (v) => (v.is_offline ? <Tag>Offline</Tag> : <Tag variant="info">Online</Tag>),
     },
   ];
 
   return (
     <div>
-      <h2 className={styles.heading}>Validações</h2>
+      <div className={styles.pageHeader}>
+        <div>
+          <h2 className={styles.heading}>Validações</h2>
+          <p className={styles.subheading}>Histórico de tentativas de embarque</p>
+        </div>
+      </div>
 
-      <Stack gap={12} wrap className={styles.filters}>
-        <div className={styles.statusSelect}>
-          <Select
-            placeholder="Status"
-            options={STATUS_OPTIONS}
+      <div className={styles.filtersCard}>
+        <Stack gap={12} wrap>
+          <div className={styles.statusSelect}>
+            <Select
+              placeholder="Todos os status"
+              options={STATUS_OPTIONS}
+              onChange={(event) => {
+                setPage(1);
+                setStatusFilter((event.target.value as ValidationStatus) || undefined);
+              }}
+            />
+          </div>
+          <Input
+            placeholder="ID do ônibus"
+            wrapperClassName={styles.busInput}
             onChange={(event) => {
               setPage(1);
-              setStatusFilter((event.target.value as ValidationStatus) || undefined);
+              setBusIdFilter(event.target.value || undefined);
             }}
           />
-        </div>
-        <Input
-          placeholder="ID do ônibus"
-          wrapperClassName={styles.busInput}
-          onChange={(event) => {
-            setPage(1);
-            setBusIdFilter(event.target.value || undefined);
-          }}
-        />
-        <Stack gap={8} align="center">
-          <span className={styles.dateLabel}>De</span>
-          <DateInput
-            value={dateFrom}
-            onChange={(value) => {
-              setPage(1);
-              setDateFrom(value);
-            }}
-          />
-          <span className={styles.dateLabel}>Até</span>
-          <DateInput
-            value={dateTo}
-            onChange={(value) => {
-              setPage(1);
-              setDateTo(value);
-            }}
-          />
+          <Stack gap={8} align="center">
+            <span className={styles.dateLabel}>De</span>
+            <DateInput
+              value={dateFrom}
+              onChange={(value) => {
+                setPage(1);
+                setDateFrom(value);
+              }}
+            />
+            <span className={styles.dateLabel}>Até</span>
+            <DateInput
+              value={dateTo}
+              onChange={(value) => {
+                setPage(1);
+                setDateTo(value);
+              }}
+            />
+          </Stack>
         </Stack>
-      </Stack>
+      </div>
 
       {validationsQuery.isError && (
         <Alert
@@ -146,11 +161,22 @@ export function ValidationsListPage() {
         }}
       />
 
-      <Drawer title="Detalhes da validação" open={Boolean(selected)} onClose={() => setSelected(null)}>
+      <Drawer
+        title="Detalhes da validação"
+        open={Boolean(selected)}
+        onClose={() => setSelected(null)}
+      >
         {selected && (
           <Descriptions
             items={[
-              { label: "Status", value: <Tag variant={statusVariant(selected.status)}>{selected.status}</Tag> },
+              {
+                label: "Status",
+                value: (
+                  <Tag variant={statusVariant(selected.status)}>
+                    {STATUS_DISPLAY[selected.status]}
+                  </Tag>
+                ),
+              },
               { label: "Motivo", value: selected.reason_code ?? "—" },
               { label: "Ônibus", value: selected.bus_id },
               { label: "Linha", value: selected.route_id ?? "—" },

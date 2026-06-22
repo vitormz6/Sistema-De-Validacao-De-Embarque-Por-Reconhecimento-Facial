@@ -1,13 +1,6 @@
-/*
- * Design tokens — single source of truth for every custom component in
- * src/components/ui. Light values live on :root; [data-theme="dark"]
- * overrides only the tokens that actually change between themes, so
- * components never branch on theme in JS, just read a CSS variable.
- */
-
 :root {
-  --font-sans:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
 
   --space-1: 4px;
   --space-2: 8px;
@@ -16,90 +9,118 @@
   --space-5: 24px;
   --space-6: 32px;
   --space-7: 48px;
+  --space-8: 64px;
 
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
 
-  --font-size-xs: 12px;
+  --font-size-xs: 11px;
   --font-size-sm: 13px;
   --font-size-md: 14px;
   --font-size-lg: 16px;
   --font-size-xl: 20px;
-  --font-size-2xl: 26px;
+  --font-size-2xl: 28px;
+  --font-size-3xl: 36px;
 
-  /* Accent — single indigo used for primary actions/links/focus rings. */
   --color-primary: #4f46e5;
   --color-primary-hover: #4338ca;
   --color-primary-soft: #eef2ff;
   --color-primary-soft-text: #4338ca;
 
-  --color-success: #15803d;
-  --color-success-soft: #ecfdf3;
-  --color-danger: #b91c1c;
-  --color-danger-soft: #fef2f2;
-  --color-warning: #b45309;
-  --color-warning-soft: #fffbeb;
-  --color-info: #1d4ed8;
-  --color-info-soft: #eff6ff;
+  --color-success: #16a34a;
+  --color-success-hover: #15803d;
+  --color-success-soft: #f0fdf4;
+  --color-success-soft-border: #bbf7d0;
 
-  --color-bg: #f8f9fb;
+  --color-danger: #dc2626;
+  --color-danger-hover: #b91c1c;
+  --color-danger-soft: #fef2f2;
+  --color-danger-soft-border: #fecaca;
+
+  --color-warning: #d97706;
+  --color-warning-soft: #fffbeb;
+  --color-warning-soft-border: #fde68a;
+
+  --color-info: #2563eb;
+  --color-info-soft: #eff6ff;
+  --color-info-soft-border: #bfdbfe;
+
+  --color-bg: #f4f5f7;
   --color-surface: #ffffff;
-  --color-surface-hover: #f3f4f6;
+  --color-surface-hover: #f9fafb;
   --color-border: #e5e7eb;
   --color-border-strong: #d1d5db;
 
   --color-text-primary: #111827;
-  --color-text-secondary: #4b5563;
+  --color-text-secondary: #6b7280;
   --color-text-tertiary: #9ca3af;
   --color-text-on-primary: #ffffff;
 
-  --color-overlay: rgba(15, 17, 21, 0.45);
+  --color-overlay: rgba(15, 17, 21, 0.5);
 
-  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06);
-  --shadow-md: 0 4px 12px rgba(16, 24, 40, 0.08);
-  --shadow-lg: 0 12px 32px rgba(16, 24, 40, 0.16);
+  --shadow-xs: 0 1px 2px rgba(16, 24, 40, 0.04);
+  --shadow-sm: 0 1px 3px rgba(16, 24, 40, 0.06), 0 1px 2px rgba(16, 24, 40, 0.04);
+  --shadow-md: 0 4px 8px rgba(16, 24, 40, 0.06), 0 2px 4px rgba(16, 24, 40, 0.04);
+  --shadow-lg: 0 16px 40px rgba(16, 24, 40, 0.12), 0 4px 12px rgba(16, 24, 40, 0.06);
+  --shadow-xl: 0 24px 56px rgba(16, 24, 40, 0.18);
 
-  --sidebar-bg: #111827;
-  --sidebar-text: #cbd5e1;
-  --sidebar-text-active: #ffffff;
-  --sidebar-item-active-bg: rgba(255, 255, 255, 0.08);
+  --sidebar-width: 240px;
+  --sidebar-bg: #0f172a;
+  --sidebar-border: rgba(255, 255, 255, 0.06);
+  --sidebar-text: #94a3b8;
+  --sidebar-text-active: #f1f5f9;
+  --sidebar-text-hover: #cbd5e1;
+  --sidebar-item-active-bg: rgba(255, 255, 255, 0.07);
+  --sidebar-item-hover-bg: rgba(255, 255, 255, 0.04);
+  --sidebar-accent: #6366f1;
 }
 
 [data-theme="dark"] {
   --color-primary: #818cf8;
   --color-primary-hover: #a5b4fc;
-  --color-primary-soft: rgba(99, 102, 241, 0.16);
+  --color-primary-soft: rgba(99, 102, 241, 0.14);
   --color-primary-soft-text: #c7d2fe;
 
   --color-success: #4ade80;
-  --color-success-soft: rgba(74, 222, 128, 0.12);
+  --color-success-hover: #22c55e;
+  --color-success-soft: rgba(74, 222, 128, 0.1);
+  --color-success-soft-border: rgba(74, 222, 128, 0.25);
+
   --color-danger: #f87171;
-  --color-danger-soft: rgba(248, 113, 113, 0.12);
+  --color-danger-hover: #ef4444;
+  --color-danger-soft: rgba(248, 113, 113, 0.1);
+  --color-danger-soft-border: rgba(248, 113, 113, 0.25);
+
   --color-warning: #fbbf24;
-  --color-warning-soft: rgba(251, 191, 36, 0.12);
+  --color-warning-soft: rgba(251, 191, 36, 0.1);
+  --color-warning-soft-border: rgba(251, 191, 36, 0.25);
+
   --color-info: #60a5fa;
-  --color-info-soft: rgba(96, 165, 250, 0.12);
+  --color-info-soft: rgba(96, 165, 250, 0.1);
+  --color-info-soft-border: rgba(96, 165, 250, 0.25);
 
-  --color-bg: #0b0d12;
-  --color-surface: #14161d;
-  --color-surface-hover: #1b1e27;
-  --color-border: #262a35;
-  --color-border-strong: #343a48;
+  --color-bg: #0b0f1a;
+  --color-surface: #111827;
+  --color-surface-hover: #1a2133;
+  --color-border: #1f2937;
+  --color-border-strong: #374151;
 
-  --color-text-primary: #f3f4f6;
-  --color-text-secondary: #b0b6c3;
-  --color-text-tertiary: #6b7280;
-  --color-text-on-primary: #0b0d12;
+  --color-text-primary: #f1f5f9;
+  --color-text-secondary: #94a3b8;
+  --color-text-tertiary: #64748b;
+  --color-text-on-primary: #0b0f1a;
 
-  --color-overlay: rgba(0, 0, 0, 0.6);
+  --color-overlay: rgba(0, 0, 0, 0.65);
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5);
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
   --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.6);
+  --shadow-xl: 0 24px 56px rgba(0, 0, 0, 0.7);
 
-  --sidebar-bg: #0b0d12;
-  --sidebar-text: #9aa3b2;
-  --sidebar-text-active: #ffffff;
-  --sidebar-item-active-bg: rgba(255, 255, 255, 0.06);
+  --sidebar-bg: #060b14;
+  --sidebar-border: rgba(255, 255, 255, 0.05);
 }

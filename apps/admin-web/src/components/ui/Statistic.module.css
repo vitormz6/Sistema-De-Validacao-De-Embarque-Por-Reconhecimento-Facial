@@ -7,12 +7,15 @@
 .title {
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
+  font-weight: 500;
 }
 
 .value {
   font-size: var(--font-size-2xl);
   font-weight: 700;
   color: var(--color-text-primary);
+  letter-spacing: -0.03em;
+  line-height: 1;
 }
 
 .success {

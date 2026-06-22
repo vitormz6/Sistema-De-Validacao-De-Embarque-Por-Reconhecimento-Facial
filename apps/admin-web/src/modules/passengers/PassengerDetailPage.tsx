@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import { extractErrorMessage } from "@/app/httpClient";
 import { Alert } from "@/components/ui/Alert";
@@ -11,6 +11,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { Stack } from "@/components/ui/Stack";
 import { Tabs } from "@/components/ui/Tabs";
 import { Tag } from "@/components/ui/Tag";
+import { ArrowLeftIcon } from "@/components/ui/icons";
 import { useToast } from "@/components/ui/toast/ToastContext";
 import { BiometricEnrollmentPanel } from "@/modules/biometrics/BiometricEnrollmentPanel";
 import { TicketsPanel } from "@/modules/tickets/TicketsPanel";
@@ -19,6 +20,7 @@ import { PassengerFormModal } from "./PassengerFormModal";
 import { passengersApi } from "./passengersApi";
 import type { PassengerFormValues } from "./passengerSchema";
 import type { PassengerStatus } from "./types";
+import styles from "./PassengerDetailPage.module.css";
 
 const STATUS_VARIANTS: Record<PassengerStatus, "success" | "danger" | "default"> = {
   ACTIVE: "success",
@@ -26,8 +28,15 @@ const STATUS_VARIANTS: Record<PassengerStatus, "success" | "danger" | "default">
   INACTIVE: "default",
 };
 
+const STATUS_LABELS: Record<PassengerStatus, string> = {
+  ACTIVE: "Ativo",
+  BLOCKED: "Bloqueado",
+  INACTIVE: "Inativo",
+};
+
 export function PassengerDetailPage() {
   const { passengerId } = useParams<{ passengerId: string }>();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const toast = useToast();
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -67,7 +76,14 @@ export function PassengerDetailPage() {
   });
 
   if (passengerQuery.isLoading) {
-    return <Skeleton rows={4} height={20} />;
+    return (
+      <div>
+        <div className={styles.backRow}>
+          <Skeleton rows={1} height={18} />
+        </div>
+        <Skeleton rows={4} height={20} />
+      </div>
+    );
   }
 
   if (passengerQuery.isError) {
@@ -75,36 +91,40 @@ export function PassengerDetailPage() {
   }
 
   const passenger = passengerQuery.data;
-  if (!passenger) {
-    return null;
-  }
+  if (!passenger) return null;
 
   return (
     <div>
-      <Card>
+      <button
+        type="button"
+        className={styles.backButton}
+        onClick={() => navigate("/passengers")}
+      >
+        <ArrowLeftIcon />
+        Voltar para Passageiros
+      </button>
+
+      <Card className={styles.profileCard}>
         <Stack justify="space-between" align="flex-start">
-          <div style={{ flex: 1 }}>
-            <h2 style={{ fontSize: "var(--font-size-lg)", fontWeight: 600, marginBottom: "var(--space-3)" }}>
-              {passenger.full_name}
-            </h2>
-            <Descriptions
-              items={[
-                { label: "Documento", value: passenger.document_number },
-                { label: "Nascimento", value: passenger.birth_date ?? "—" },
-                {
-                  label: "Status",
-                  value: (
-                    <Tag variant={STATUS_VARIANTS[passenger.status]}>{passenger.status}</Tag>
-                  ),
-                },
-              ]}
-            />
+          <div className={styles.profileInfo}>
+            <div className={styles.profileAvatar}>
+              {passenger.full_name.charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <h2 className={styles.profileName}>{passenger.full_name}</h2>
+              <Tag variant={STATUS_VARIANTS[passenger.status]}>
+                {STATUS_LABELS[passenger.status]}
+              </Tag>
+            </div>
           </div>
 
           <Stack gap={8}>
             <Button onClick={() => setIsEditOpen(true)}>Editar</Button>
             {passenger.status === "BLOCKED" ? (
-              <Button onClick={() => activateMutation.mutate()} loading={activateMutation.isPending}>
+              <Button
+                onClick={() => activateMutation.mutate()}
+                loading={activateMutation.isPending}
+              >
                 Ativar
               </Button>
             ) : (
@@ -118,9 +138,19 @@ export function PassengerDetailPage() {
             )}
           </Stack>
         </Stack>
+
+        <div className={styles.profileDetails}>
+          <Descriptions
+            items={[
+              { label: "Documento", value: passenger.document_number },
+              { label: "Data de nascimento", value: passenger.birth_date ?? "—" },
+              { label: "Status", value: STATUS_LABELS[passenger.status] },
+            ]}
+          />
+        </div>
       </Card>
 
-      <div style={{ marginTop: 24 }}>
+      <div className={styles.tabsSection}>
         <Tabs
           items={[
             {

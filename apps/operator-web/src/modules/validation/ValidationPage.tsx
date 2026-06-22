@@ -17,9 +17,15 @@ export function ValidationPage() {
   const [pageState, setPageState] = useState<PageState>("idle");
   const [result, setResult] = useState<BoardingValidationResponse | null>(null);
 
-  const { mutate, isError } = useMutation({
+  const { mutate } = useMutation({
     mutationFn: (blob: Blob) => validationApi.validateBoarding(blob),
     onSuccess: (data) => {
+      /* DENIED_FACE_NOT_FOUND: ninguém parado na frente — retorna silenciosamente */
+      if (data.status === "DENIED_FACE_NOT_FOUND") {
+        setPageState("idle");
+        return;
+      }
+
       setResult(data);
       setPageState("result");
       setTimeout(() => {
@@ -40,25 +46,16 @@ export function ValidationPage() {
   return (
     <div className={styles.page}>
       <SyncStatusBar />
+
       <main className={styles.main}>
         {pageState === "result" && result !== null ? (
           <ResultCard result={result} resetAfterMs={RESULT_DISPLAY_MS} />
         ) : (
-          <>
-            <p className={styles.subtitle}>
-              Posicione o rosto na câmera e pressione o botão para validar o embarque
-            </p>
-            <CameraCapture
-              onCapture={handleCapture}
-              disabled={pageState === "processing"}
-              processing={pageState === "processing"}
-            />
-            {isError && (
-              <p className={styles.errorText}>
-                Erro ao comunicar com o dispositivo. Tente novamente.
-              </p>
-            )}
-          </>
+          <CameraCapture
+            onCapture={handleCapture}
+            autoDetect={pageState === "idle"}
+            processing={pageState === "processing"}
+          />
         )}
       </main>
     </div>

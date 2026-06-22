@@ -4,7 +4,7 @@
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-sm);
   background: var(--color-surface);
-  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+  transition: border-color 0.1s ease, box-shadow 0.1s ease;
 }
 
 .wrapper:focus-within {
@@ -16,6 +16,10 @@
   border-color: var(--color-danger);
 }
 
+.wrapper.error:focus-within {
+  box-shadow: 0 0 0 3px var(--color-danger-soft);
+}
+
 .input {
   flex: 1;
   min-width: 0;
@@ -24,7 +28,7 @@
   border: none;
   background: transparent;
   color: var(--color-text-primary);
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-sm);
   font-family: inherit;
   outline: none;
 }

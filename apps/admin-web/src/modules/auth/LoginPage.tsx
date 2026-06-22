@@ -8,6 +8,7 @@ import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { FormField } from "@/components/ui/FormField";
 import { Input } from "@/components/ui/Input";
+import { PlaneIcon } from "@/components/ui/icons";
 import { PasswordInput } from "@/components/ui/PasswordInput";
 
 import { useAuth } from "./AuthContext";
@@ -40,8 +41,49 @@ export function LoginPage() {
 
   return (
     <div className={styles.wrapper}>
-      <div className={styles.card}>
-        <h1 className={styles.title}>Boarding Face Validation</h1>
+      <div className={styles.hero}>
+        <div className={styles.heroGlow} />
+
+        <div className={styles.heroTop}>
+          <div className={styles.heroBrandIcon}>
+            <PlaneIcon />
+          </div>
+          <span className={styles.heroBrandName}>BFV Admin</span>
+        </div>
+
+        <div className={styles.heroBody}>
+          <h1 className={styles.heroTitle}>
+            Controle de embarque <em>inteligente</em>
+          </h1>
+          <p className={styles.heroDescription}>
+            Gerencie passageiros, passagens e validações biométricas em tempo real com segurança e
+            precisão.
+          </p>
+        </div>
+
+        <div className={styles.heroFeatures}>
+          <div className={styles.heroFeatureItem}>
+            <span className={styles.heroFeatureDot} />
+            Validação facial com reconhecimento biométrico
+          </div>
+          <div className={styles.heroFeatureItem}>
+            <span className={styles.heroFeatureDot} />
+            Sincronização de dispositivos de borda
+          </div>
+          <div className={styles.heroFeatureItem}>
+            <span className={styles.heroFeatureDot} />
+            Monitoramento de validações em tempo real
+          </div>
+        </div>
+      </div>
+
+      <div className={styles.panel}>
+        <div className={styles.formHeader}>
+          <h2 className={styles.formTitle}>Bem-vindo de volta</h2>
+          <p className={styles.formSubtitle}>
+            Insira suas credenciais para acessar o painel administrativo.
+          </p>
+        </div>
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <FormField label="E-mail" error={errors.email?.message}>

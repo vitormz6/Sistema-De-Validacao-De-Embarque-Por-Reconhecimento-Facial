@@ -193,3 +193,69 @@ export function ChevronRightIcon(props: IconProps) {
     </Svg>
   );
 }
+
+export function PlaneIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M17.8 19.2L16 11l3.5-3.5C21 6 21 4 19 2c-2-2-4-2-5.5-.5L10 5 1.8 6.2c-.5.1-.7.7-.3 1l2.5 2.5-1 4.5 3-1.5 2 2-1.5 3 4.5-1 2.5 2.5c.3.4.9.2 1-.3z" />
+    </Svg>
+  );
+}
+
+export function CheckCircleIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+      <path d="M22 4L12 14.01l-3-3" />
+    </Svg>
+  );
+}
+
+export function XCircleIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M15 9l-6 6" />
+      <path d="M9 9l6 6" />
+    </Svg>
+  );
+}
+
+export function ActivityIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+    </Svg>
+  );
+}
+
+export function WifiOffIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <line x1="2" y1="2" x2="22" y2="22" />
+      <path d="M8.5 16.5a5 5 0 0 1 7 0" />
+      <path d="M5 12.5a10 10 0 0 1 5.17-2.6" />
+      <path d="M19.07 12.5a10 10 0 0 0-5.6-2.74" />
+      <path d="M10.7 19.7L12 21l1.3-1.3" />
+      <path d="M2 8.82a15 15 0 0 1 4.17-2.65" />
+      <path d="M22 8.82a15 15 0 0 0-8.22-3.79" />
+    </Svg>
+  );
+}
+
+export function ArrowLeftIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M19 12H5" />
+      <path d="M12 19l-7-7 7-7" />
+    </Svg>
+  );
+}
+
+export function FilterIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+    </Svg>
+  );
+}

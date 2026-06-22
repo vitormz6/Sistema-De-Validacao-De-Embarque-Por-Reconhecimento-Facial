@@ -14,6 +14,7 @@
 .errorText {
   font-size: var(--font-size-xs);
   color: var(--color-danger);
+  font-weight: 500;
 }
 
 .hintText {

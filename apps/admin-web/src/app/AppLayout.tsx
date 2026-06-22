@@ -1,7 +1,14 @@
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
-import { Button } from "@/components/ui/Button";
-import { DashboardIcon, ListIcon, LogoutIcon, MoonIcon, SunIcon, UsersIcon } from "@/components/ui/icons";
+import {
+  DashboardIcon,
+  ListIcon,
+  LogoutIcon,
+  MoonIcon,
+  PlaneIcon,
+  SunIcon,
+  UsersIcon,
+} from "@/components/ui/icons";
 import { useAuth } from "@/modules/auth/AuthContext";
 
 import { useTheme } from "./theme/ThemeContext";
@@ -12,6 +19,16 @@ const NAV_ITEMS = [
   { key: "/passengers", icon: UsersIcon, label: "Passageiros" },
   { key: "/validations", icon: ListIcon, label: "Validações" },
 ];
+
+function getInitials(name: string): string {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase();
+}
 
 export function AppLayout() {
   const { user, logout } = useAuth();
@@ -25,29 +42,39 @@ export function AppLayout() {
   return (
     <div className={styles.layout}>
       <aside className={styles.sidebar}>
-        <div className={styles.brand}>Boarding Face Validation</div>
-        <nav className={styles.nav}>
-          {NAV_ITEMS.map((item) => {
-            const Icon = item.icon;
-            return (
-              <button
-                key={item.key}
-                type="button"
-                className={[styles.navItem, item.key === activeKey ? styles.navItemActive : ""].join(
-                  " ",
-                )}
-                onClick={() => navigate(item.key)}
-              >
-                <Icon className={styles.navIcon} />
-                {item.label}
-              </button>
-            );
-          })}
-        </nav>
-      </aside>
+        <div className={styles.brand}>
+          <div className={styles.brandIcon}>
+            <PlaneIcon />
+          </div>
+          <div>
+            <span className={styles.brandName}>BFV Admin</span>
+            <span className={styles.brandSub}>Boarding Face Validation</span>
+          </div>
+        </div>
 
-      <div className={styles.main}>
-        <header className={styles.header}>
+        <div className={styles.navSection}>
+          <span className={styles.navLabel}>Menu</span>
+          <nav className={styles.nav}>
+            {NAV_ITEMS.map((item) => {
+              const Icon = item.icon;
+              const isActive = item.key === activeKey;
+              return (
+                <button
+                  key={item.key}
+                  type="button"
+                  className={[styles.navItem, isActive ? styles.navItemActive : ""].join(" ")}
+                  onClick={() => navigate(item.key)}
+                >
+                  {isActive && <span className={styles.navActiveBar} />}
+                  <Icon className={styles.navIcon} />
+                  {item.label}
+                </button>
+              );
+            })}
+          </nav>
+        </div>
+
+        <div className={styles.sidebarFooter}>
           <button
             type="button"
             className={styles.themeToggle}
@@ -55,17 +82,33 @@ export function AppLayout() {
             aria-label="Alternar tema"
           >
             {theme === "dark" ? <SunIcon /> : <MoonIcon />}
+            <span>{theme === "dark" ? "Tema claro" : "Tema escuro"}</span>
           </button>
-          <span className={styles.userName}>{user?.full_name}</span>
-          <Button variant="ghost" size="sm" icon={<LogoutIcon />} onClick={logout}>
-            Sair
-          </Button>
-        </header>
 
-        <main className={styles.content}>
-          <Outlet />
-        </main>
-      </div>
+          <div className={styles.userRow}>
+            <div className={styles.userAvatar}>
+              {user?.full_name ? getInitials(user.full_name) : "?"}
+            </div>
+            <div className={styles.userInfo}>
+              <span className={styles.userName}>{user?.full_name}</span>
+              <span className={styles.userRole}>Administrador</span>
+            </div>
+            <button
+              type="button"
+              className={styles.logoutButton}
+              onClick={logout}
+              title="Sair"
+              aria-label="Sair"
+            >
+              <LogoutIcon />
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <main className={styles.content}>
+        <Outlet />
+      </main>
     </div>
   );
 }

@@ -3,6 +3,7 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   overflow: hidden;
+  box-shadow: var(--shadow-sm);
 }
 
 .table {
@@ -19,14 +20,16 @@
   font-weight: 600;
   font-size: var(--font-size-xs);
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.05em;
   border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
 }
 
 .table td {
   padding: var(--space-3) var(--space-4);
   border-bottom: 1px solid var(--color-border);
   color: var(--color-text-primary);
+  vertical-align: middle;
 }
 
 .table tbody tr:last-child td {
@@ -37,14 +40,15 @@
   cursor: pointer;
 }
 
-.clickableRow:hover {
+.clickableRow:hover td {
   background: var(--color-surface-hover);
 }
 
 .empty {
   text-align: center;
-  padding: var(--space-6);
+  padding: var(--space-7);
   color: var(--color-text-tertiary);
+  font-size: var(--font-size-sm);
 }
 
 .pagination {
@@ -53,6 +57,7 @@
   justify-content: space-between;
   padding: var(--space-3) var(--space-4);
   border-top: 1px solid var(--color-border);
+  background: var(--color-surface-hover);
 }
 
 .pageInfo {
@@ -76,13 +81,16 @@
   background: var(--color-surface);
   color: var(--color-text-secondary);
   cursor: pointer;
+  transition: background-color 0.1s ease, border-color 0.1s ease;
 }
 
 .pageButton:hover:not(:disabled) {
   background: var(--color-surface-hover);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
 }
 
 .pageButton:disabled {
-  opacity: 0.4;
+  opacity: 0.35;
   cursor: not-allowed;
 }

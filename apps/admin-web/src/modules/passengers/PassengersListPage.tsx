@@ -25,10 +25,16 @@ const STATUS_VARIANTS: Record<PassengerStatus, "success" | "danger" | "default">
   INACTIVE: "default",
 };
 
+const STATUS_LABELS: Record<PassengerStatus, string> = {
+  ACTIVE: "Ativo",
+  BLOCKED: "Bloqueado",
+  INACTIVE: "Inativo",
+};
+
 const STATUS_OPTIONS = [
-  { value: "ACTIVE", label: "ACTIVE" },
-  { value: "BLOCKED", label: "BLOCKED" },
-  { value: "INACTIVE", label: "INACTIVE" },
+  { value: "ACTIVE", label: "Ativo" },
+  { value: "BLOCKED", label: "Bloqueado" },
+  { value: "INACTIVE", label: "Inativo" },
 ];
 
 const PAGE_SIZE = 20;
@@ -67,25 +73,28 @@ export function PassengersListPage() {
   };
 
   const columns: TableColumn<Passenger>[] = [
-    { key: "full_name", title: "Nome", render: (passenger) => passenger.full_name },
-    { key: "document_number", title: "Documento", render: (passenger) => passenger.document_number },
+    { key: "full_name", title: "Nome", render: (p) => p.full_name },
+    { key: "document_number", title: "Documento", render: (p) => p.document_number },
     {
       key: "status",
       title: "Status",
-      render: (passenger) => (
-        <Tag variant={STATUS_VARIANTS[passenger.status]}>{passenger.status}</Tag>
+      render: (p) => (
+        <Tag variant={STATUS_VARIANTS[p.status]}>{STATUS_LABELS[p.status]}</Tag>
       ),
     },
   ];
 
   return (
     <div>
-      <Stack justify="space-between" align="center" className={styles.headerRow}>
-        <h2 className={styles.heading}>Passageiros</h2>
+      <div className={styles.pageHeader}>
+        <div>
+          <h2 className={styles.heading}>Passageiros</h2>
+          <p className={styles.subheading}>Gerencie cadastros e permissões de embarque</p>
+        </div>
         <Button variant="primary" onClick={() => setIsCreateOpen(true)}>
           Novo passageiro
         </Button>
-      </Stack>
+      </div>
 
       <Stack gap={12} className={styles.filters}>
         <Input
@@ -99,7 +108,7 @@ export function PassengersListPage() {
         />
         <div className={styles.statusSelect}>
           <Select
-            placeholder="Status"
+            placeholder="Todos os status"
             options={STATUS_OPTIONS}
             onChange={(event) => {
               setPage(1);

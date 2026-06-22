@@ -9,12 +9,15 @@
 }
 
 .code {
-  font-size: 64px;
-  font-weight: 700;
-  color: var(--color-text-tertiary);
+  font-size: 72px;
+  font-weight: 800;
+  color: var(--color-border-strong);
+  letter-spacing: -0.04em;
+  line-height: 1;
 }
 
 .message {
+  font-size: var(--font-size-lg);
   color: var(--color-text-secondary);
-  margin-bottom: var(--space-3);
+  margin-bottom: var(--space-2);
 }

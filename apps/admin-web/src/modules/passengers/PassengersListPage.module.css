@@ -1,10 +1,22 @@
-.headerRow {
+.pageHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
   margin-bottom: var(--space-5);
+  gap: var(--space-4);
 }
 
 .heading {
   font-size: var(--font-size-xl);
-  font-weight: 600;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-1);
+}
+
+.subheading {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
 }
 
 .filters {
@@ -16,7 +28,7 @@
 }
 
 .statusSelect {
-  width: 160px;
+  width: 180px;
 }
 
 .alert {

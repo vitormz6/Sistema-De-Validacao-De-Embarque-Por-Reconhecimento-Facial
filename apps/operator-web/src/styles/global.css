@@ -1,6 +1,8 @@
 @import "./tokens.css";
 
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
@@ -17,8 +19,8 @@ body {
   color: var(--color-text-primary);
   background: var(--color-bg);
   -webkit-font-smoothing: antialiased;
-  /* Kiosk screen: no pinch-zoom/selection, this runs full-screen on a
-   * mounted tablet, not a regular browsing context. */
+  -moz-osx-font-smoothing: grayscale;
+  /* Kiosk: sem pinch-zoom, sem seleção de texto, sem overscroll */
   -webkit-user-select: none;
   user-select: none;
   overscroll-behavior: none;

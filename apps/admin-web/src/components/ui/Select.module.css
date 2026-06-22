@@ -12,13 +12,15 @@
   border-radius: var(--radius-sm);
   background: var(--color-surface);
   color: var(--color-text-primary);
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-sm);
   font-family: inherit;
   appearance: none;
   cursor: pointer;
+  transition: border-color 0.1s ease, box-shadow 0.1s ease;
 }
 
 .select:focus-visible {
+  outline: none;
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px var(--color-primary-soft);
 }

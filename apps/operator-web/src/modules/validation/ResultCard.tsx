@@ -21,10 +21,10 @@ const STATUS_LABELS: Record<ValidationStatus, string> = {
 function formatConfidence(result: BoardingValidationResponse): string | null {
   if (result.similarity_distance !== null) {
     const pct = Math.round((1 - result.similarity_distance) * 100);
-    return `${pct}% de confiança`;
+    return `${pct}% de similaridade`;
   }
   if (result.confidence_score !== null) {
-    return `${Math.round(result.confidence_score * 100)}% de qualidade`;
+    return `${Math.round(result.confidence_score * 100)}% de confiança`;
   }
   return null;
 }
@@ -45,18 +45,40 @@ export function ResultCard({ result, resetAfterMs }: Props) {
 
   return (
     <div className={`${styles.card} ${isAuthorized ? styles.cardAuthorized : styles.cardDenied}`}>
-      <span
-        className={`${styles.icon} ${isAuthorized ? styles.iconAuthorized : styles.iconDenied}`}
-        aria-hidden="true"
-      >
-        {isAuthorized ? "✓" : "✗"}
-      </span>
+      <div className={styles.iconWrapper}>
+        {isAuthorized ? (
+          <svg
+            className={styles.icon}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+            <path d="M22 4L12 14.01l-3-3" />
+          </svg>
+        ) : (
+          <svg
+            className={styles.icon}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <path d="M15 9l-6 6" />
+            <path d="M9 9l6 6" />
+          </svg>
+        )}
+      </div>
 
-      <h2
-        className={`${styles.statusText} ${isAuthorized ? styles.statusAuthorized : styles.statusDenied}`}
-      >
-        {label}
-      </h2>
+      <h2 className={styles.statusText}>{label}</h2>
 
       {isAuthorized && result.passenger_name !== null && (
         <p className={styles.passengerName}>{result.passenger_name}</p>
@@ -64,9 +86,22 @@ export function ResultCard({ result, resetAfterMs }: Props) {
 
       {confidence !== null && <p className={styles.detail}>{confidence}</p>}
 
-      {result.is_offline && <p className={styles.offlineTag}>● Modo offline</p>}
+      {result.is_offline && (
+        <span className={styles.offlineBadge}>
+          <span className={styles.offlineDot} />
+          Modo offline
+        </span>
+      )}
 
-      <p className={styles.resetTimer}>Voltando em {countdown}s...</p>
+      <div className={styles.footer}>
+        <div className={styles.progressBar}>
+          <div
+            className={styles.progressFill}
+            style={{ animationDuration: `${resetAfterMs}ms` }}
+          />
+        </div>
+        <p className={styles.resetTimer}>Voltando em {countdown}s</p>
+      </div>
     </div>
   );
 }

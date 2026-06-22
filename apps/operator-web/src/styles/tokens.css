@@ -1,13 +1,12 @@
 /*
- * Same palette as admin-web's tokens.css (visual consistency across the
- * two frontends) — but no [data-theme="dark"] override here: this is a
- * single-purpose kiosk screen mounted on a bus, not something an
- * operator customizes, so there's no theme toggle to support.
+ * Design tokens for the operator-web kiosk.
+ * No dark-theme override — kiosk is fixed-display, no user toggle.
+ * Kept in sync with admin-web tokens.css palette.
  */
 
 :root {
-  --font-sans:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
 
   --space-1: 4px;
   --space-2: 8px;
@@ -16,44 +15,56 @@
   --space-5: 24px;
   --space-6: 32px;
   --space-7: 48px;
+  --space-8: 64px;
 
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
 
-  --font-size-xs: 12px;
+  --font-size-xs: 11px;
   --font-size-sm: 13px;
   --font-size-md: 14px;
   --font-size-lg: 16px;
   --font-size-xl: 20px;
-  --font-size-2xl: 26px;
+  --font-size-2xl: 28px;
   --font-size-3xl: 40px;
+  --font-size-4xl: 56px;
 
   --color-primary: #4f46e5;
   --color-primary-hover: #4338ca;
   --color-primary-soft: #eef2ff;
 
-  --color-success: #15803d;
-  --color-success-soft: #ecfdf3;
-  --color-danger: #b91c1c;
+  --color-success: #16a34a;
+  --color-success-soft: #f0fdf4;
+  --color-success-soft-border: #bbf7d0;
+  --color-success-dark: #14532d;
+
+  --color-danger: #dc2626;
   --color-danger-soft: #fef2f2;
-  --color-warning: #b45309;
+  --color-danger-soft-border: #fecaca;
+  --color-danger-dark: #7f1d1d;
+
+  --color-warning: #d97706;
   --color-warning-soft: #fffbeb;
-  --color-info: #1d4ed8;
+
+  --color-info: #2563eb;
   --color-info-soft: #eff6ff;
 
-  --color-bg: #f8f9fb;
-  --color-surface: #ffffff;
-  --color-surface-hover: #f3f4f6;
-  --color-border: #e5e7eb;
-  --color-border-strong: #d1d5db;
+  --color-bg: #0f172a;
+  --color-surface: #1e293b;
+  --color-surface-hover: #334155;
+  --color-border: #334155;
+  --color-border-strong: #475569;
 
-  --color-text-primary: #111827;
-  --color-text-secondary: #4b5563;
-  --color-text-tertiary: #9ca3af;
+  --color-text-primary: #f1f5f9;
+  --color-text-secondary: #94a3b8;
+  --color-text-tertiary: #64748b;
   --color-text-on-primary: #ffffff;
 
-  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06);
-  --shadow-md: 0 4px 12px rgba(16, 24, 40, 0.08);
-  --shadow-lg: 0 12px 32px rgba(16, 24, 40, 0.16);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.6);
+  --shadow-xl: 0 24px 56px rgba(0, 0, 0, 0.7);
 }
