@@ -5,6 +5,8 @@ from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.modules.biometrics.model import FaceEmbedding
+from app.modules.passengers.model import Passenger
+from app.shared.enums import PassengerStatus
 
 
 class FaceEmbeddingRepository:
@@ -51,7 +53,16 @@ class FaceEmbeddingRepository:
         statement = select(FaceEmbedding)
 
         if since is None:
-            statement = statement.where(FaceEmbedding.active.is_(True))
+            # Snapshot: only active embeddings whose passenger is also active.
+            # Without the passenger join, an active embedding belonging to a
+            # BLOCKED passenger would be included while the passenger itself
+            # is excluded from the snapshot — causing a FK violation when the
+            # sync-worker tries to upsert the embedding before its passenger.
+            statement = (
+                statement.join(Passenger, FaceEmbedding.passenger_id == Passenger.id)
+                .where(FaceEmbedding.active.is_(True))
+                .where(Passenger.status == PassengerStatus.ACTIVE.value)
+            )
         else:
             statement = statement.where(
                 or_(
