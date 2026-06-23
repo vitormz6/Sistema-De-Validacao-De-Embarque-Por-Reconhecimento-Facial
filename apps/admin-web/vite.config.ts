@@ -12,7 +12,7 @@ export default defineConfig({
   },
   server: {
     port: 5173,
-    allowedHosts: "all",
+    allowedHosts: true,
   },
   test: {
     environment: "jsdom",
