@@ -1,0 +1,160 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  # ─── Python apps ─────────────────────────────────────────────────────────────
+
+  central-api:
+    name: central-api (lint + test + coverage)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/central-api
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -e ".[dev]" pytest-cov
+
+      - name: Lint (ruff)
+        run: ruff check .
+
+      - name: Test + coverage
+        run: |
+          pytest --cov=app --cov-report=term-missing --cov-fail-under=75
+
+  edge-api:
+    name: edge-api (lint + test + coverage)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/edge-api
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -e ".[dev]" pytest-cov
+
+      - name: Lint (ruff)
+        run: ruff check .
+
+      - name: Test + coverage
+        run: |
+          pytest --cov=app --cov-report=term-missing --cov-fail-under=75
+
+  sync-worker:
+    name: sync-worker (lint + test + coverage)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/sync-worker
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -e ".[dev]" pytest-cov
+
+      - name: Lint (ruff)
+        run: ruff check .
+
+      - name: Test + coverage
+        run: |
+          pytest --cov=app --cov-report=term-missing --cov-fail-under=75
+
+  vision-service:
+    name: vision-service (lint + test)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/vision-service
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        # insightface e onnxruntime são pesados demais pra CI — testes usam mocks
+        run: pip install fastapi uvicorn pydantic pydantic-settings structlog numpy pytest pytest-asyncio httpx ruff pytest-cov
+
+      - name: Lint (ruff)
+        run: ruff check .
+
+      - name: Test + coverage
+        run: |
+          pytest --cov=app --cov-report=term-missing --cov-fail-under=75
+
+  # ─── Frontend ─────────────────────────────────────────────────────────────────
+
+  admin-web:
+    name: admin-web (lint + test + coverage)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/admin-web
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: apps/admin-web/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint (eslint)
+        run: npm run lint
+
+      - name: Test + coverage
+        run: npm run test:coverage -- --coverage.thresholds.lines=25
+
+  operator-web:
+    name: operator-web (lint + test)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/operator-web
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: apps/operator-web/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint (eslint)
+        run: npm run lint

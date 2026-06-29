@@ -19,6 +19,7 @@ dependencies = [
     "bcrypt>=4.2.0",
     "pyjwt>=2.9.0",
     "python-multipart>=0.0.9",
+    "prometheus-fastapi-instrumentator>=7.0.0",
     "pytest>=8.3.0",
     "pytest-asyncio>=0.23.8"
 ]
@@ -27,7 +28,8 @@ dependencies = [
 dev = [
     "ruff>=0.5.6",
     "mypy>=1.11.1",
-    "aiosqlite>=0.20.0"
+    "aiosqlite>=0.20.0",
+    "pytest-cov>=5.0.0"
 ]
 
 [tool.setuptools.packages.find]
@@ -41,3 +43,11 @@ target-version = "py312"
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+
+[tool.coverage.run]
+source = ["app"]
+omit = ["app/database/migrations/*", "app/database/session.py"]
+
+[tool.coverage.report]
+fail_under = 75
+show_missing = true

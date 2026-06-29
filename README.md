@@ -1,18 +1,20 @@
 # Sistema de Validação de Embarque por Reconhecimento Facial
 
-[![CI](https://github.com/vitormz6/Sistema-De-Validacao-De-Embarque-Por-Reconhecimento-Facial/actions/workflows/ci.yml/badge.svg)](https://github.com/vitormz6/Sistema-De-Validacao-De-Embarque-Por-Reconhecimento-Facial/actions/workflows/ci.yml)
+## Acesso em Produção
 
-## 🚀 Acesso em Produção
 
-| Serviço | URL |
-|---|---|
-| Admin Web (Painel Administrativo) | https://bfv-admin-web.up.railway.app |
-| Operator Web (Validador do Ônibus) | https://operator-web.up.railway.app |
-| Central API (Swagger/Docs) | https://bfv-central-api.up.railway.app/docs |
-| Edge API (Swagger/Docs) | https://edge-api-production-8af2.up.railway.app/docs |
-| Linktree | https://linktr.ee/vitormz5 |
+| Serviço                            | URL                                                                                                          |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Admin Web (Painel Administrativo)  | [https://bfv-admin-web.up.railway.app](https://bfv-admin-web.up.railway.app)                                 |
+| Operator Web (Validador do Ônibus) | [https://operator-web.up.railway.app](https://operator-web.up.railway.app)                                   |
+| Central API (Swagger/Docs)         | [https://bfv-central-api.up.railway.app/docs](https://bfv-central-api.up.railway.app/docs)                   |
+| Edge API (Swagger/Docs)            | [https://edge-api-production-8af2.up.railway.app/docs](https://edge-api-production-8af2.up.railway.app/docs) |
+| Linktree                           | [https://linktr.ee/vitormz5](https://linktr.ee/vitormz5)                                                     |
 
-## ⚡ Quick Start (local com Docker)
+
+
+
+## Quick Start (local com Docker)
 
 ```bash
 git clone https://github.com/vitormz6/Sistema-De-Validacao-De-Embarque-Por-Reconhecimento-Facial.git
@@ -31,25 +33,52 @@ docker compose exec central-api python -m scripts.seed_admin \
 ```
 
 Acesse:
-- Admin Web: http://localhost:5173
-- Operator Web: http://localhost:5174
-- Central API Docs: http://localhost:8000/docs
-- Edge API Docs: http://localhost:8001/docs
 
-## 🧪 Rodando os Testes
+- Admin Web: [http://localhost:5173](http://localhost:5173)
+- Operator Web: [http://localhost:5174](http://localhost:5174)
+- Central API Docs: [http://localhost:8000/docs](http://localhost:8000/docs)
+- Edge API Docs: [http://localhost:8001/docs](http://localhost:8001/docs)
+
+
+
+## Rodando os Testes
 
 ```bash
-# Backend
-cd apps/central-api && pytest
-cd apps/edge-api && pytest
-cd apps/vision-service && pytest
-cd apps/sync-worker && pytest
+# Backend (com relatório de cobertura)
+cd apps/central-api && pytest --cov=app --cov-report=term-missing
+cd apps/edge-api && pytest --cov=app --cov-report=term-missing
+cd apps/vision-service && pytest --cov=app --cov-report=term-missing
+cd apps/sync-worker && pytest --cov=app --cov-report=term-missing
 
-# Frontend
-cd apps/admin-web && npm test
+# Frontend (com cobertura)
+cd apps/admin-web && npm run test:coverage
 ```
 
+
+
+## Observabilidade
+
+Com os serviços rodando via docker-compose:
+
+- **Prometheus:** [http://localhost:9090](http://localhost:9090) — métricas de todos os serviços
+- **Grafana:** [http://localhost:3000](http://localhost:3000) — login `admin/admin`, datasource Prometheus já provisionado
+
+Todas as APIs expõem `/metrics` via [prometheus-fastapi-instrumentator](https://github.com/trallnag/prometheus-fastapi-instrumentator).
+
+## Infraestrutura de Deploy
+
+O deploy em produção usa **Railway** como plataforma de hosting, mas **toda a gestão de infraestrutura e pipeline é própria**:
+
+- **CI/CD:** GitHub Actions (`.github/workflows/ci.yml`) — lint + testes + cobertura em cada push/PR, independente do Railway
+- **Containerização:** todos os serviços rodam em containers Docker definidos em `infrastructure/docker/` e orquestrados pelo `docker-compose.yml`; o mesmo artefato usado localmente é o que sobe em produção
+- **Arquitetura:** definida e controlada pelo projeto — router → service → repository por camada, migrações via Alembic, sincronização via outbox pattern
+- **Railway** é apenas o host que executa os containers — equivale a ter um servidor VPS executando `docker compose up`; não usa nenhuma funcionalidade de backend-as-a-service, banco gerenciado com magic ou CI automático da plataforma
+
+Em um cenário de produção real, os mesmos `Dockerfile`s e `docker-compose.yml` podem ser executados em qualquer servidor Linux, AWS EC2, GCP Compute Engine ou Kubernetes sem alterações de código.
+
 ---
+
+
 
 # Capa (RFC)
 
@@ -59,6 +88,8 @@ cd apps/admin-web && npm test
 - **Data de Entrega**: 23/06/2026
 
 ---
+
+
 
 # Resumo
 
@@ -70,7 +101,11 @@ A arquitetura de referência permanece preparada para evolução (observabilidad
 
 ---
 
+
+
 ## 1. Introdução
+
+
 
 ### Contexto
 
@@ -91,6 +126,8 @@ Além disso, o projeto permite explorar boas práticas de **engenharia de softwa
 
 ### Objetivos
 
+
+
 #### Objetivo Geral
 
 Desenvolver um MVP funcional de um sistema de **validação de embarque em ônibus por reconhecimento facial** com arquitetura modular, capaz de operar em modo offline no ambiente edge, sincronizar dados essenciais com a plataforma central e disponibilizar rastreabilidade das validações no painel administrativo.
@@ -108,6 +145,8 @@ Desenvolver um MVP funcional de um sistema de **validação de embarque em ônib
 - Disponibilizar consulta de validações e indicadores básicos no Admin Web.
 
 ---
+
+
 
 ## 2. Descrição do Projeto
 
@@ -158,9 +197,15 @@ O propósito é **automatizar e tornar mais seguro e ágil** o processo de valid
 
 ---
 
+
+
 ## 3. Especificação Técnica
 
+
+
 ### 3.1. Requisitos de Software
+
+
 
 #### Requisitos Funcionais (RF)
 
@@ -179,6 +224,8 @@ O propósito é **automatizar e tornar mais seguro e ágil** o processo de valid
 - **RF13 – Dashboard Operacional Básico**: O Admin Web deve apresentar indicadores básicos de validações autorizadas/negadas e pendências de sincronização.
 - **RF14 – Endpoint de Status Edge**: O `edge-api` deve expor status de saúde operacional (API, banco local e sincronização).
 
+
+
 #### Requisitos Não Funcionais (RNF)
 
 - **RNF01 – Desempenho**: O tempo de validação local (captura até decisão) não deve exceder 2 segundos no ambiente de teste definido.
@@ -189,6 +236,8 @@ O propósito é **automatizar e tornar mais seguro e ágil** o processo de valid
 - **RNF06 – Operação Offline-First**: O edge deve continuar validando embarque sem internet e sincronizar de forma assíncrona quando reconectado.
 - **RNF07 – Manutenibilidade**: A solução deve manter separação modular entre `admin-web`, `central-api`, `edge-api`, `vision-service` e `sync-worker`.
 - **RNF08 – Observabilidade Básica**: O sistema deve registrar eventos estruturados de validação e sincronização para suporte técnico e avaliação acadêmica.
+
+
 
 #### Representação dos Requisitos – Diagrama de Casos de Uso (UML)
 
@@ -213,6 +262,8 @@ flowchart LR
     actorAdmin --> UC04
     actorAdmin --> UC05
 ```
+
+
 
 
 
@@ -243,6 +294,8 @@ flowchart LR
     serviceTicket --> repoTicket
     serviceValidation --> repoValidation
 ```
+
+
 
 
 
@@ -303,6 +356,8 @@ A arquitetura proposta é **modular** e pode ser descrita em blocos principais (
   - Recebimento de dados essenciais da central para o edge;
   - Retentativa e marcação de eventos sincronizados.
 
+
+
 #### Padrões de Arquitetura
 
 - **Arquitetura em Camadas**:
@@ -314,6 +369,8 @@ A arquitetura proposta é **modular** e pode ser descrita em blocos principais (
   - A decisão de embarque ocorre no edge, com sincronização eventual para a central;
   - O desenho reduz impacto de conectividade intermitente e mantém rastreabilidade operacional;
   - A evolução arquitetural prevê ampliação de governança, observabilidade e antifraude.
+
+
 
 #### Mockups das Telas Principais (visão conceitual)
 
@@ -337,6 +394,8 @@ Os mockups visuais poderão ser elaborados em ferramentas como Figma ou similare
 - **Estratégia de Sincronização**: uso de outbox pattern para robustez em rede intermitente sem acoplamento forte entre edge e central.
 - **Recorte MVP**: priorização de uma jornada funcional completa em vez de cobertura total da plataforma ideal.
 
+
+
 #### Critérios de Escalabilidade, Resiliência e Segurança
 
 - **Escalabilidade**:
@@ -354,12 +413,18 @@ Os mockups visuais poderão ser elaborados em ferramentas como Figma ou similare
 
 ---
 
+
+
 ### 3.3. Stack Tecnológica
+
+
 
 #### Linguagens de Programação
 
 - **Python 3.x**: linguagem principal de `central-api`, `edge-api`, `vision-service` e `sync-worker`.
 - **TypeScript**: linguagem principal do `admin-web`.
+
+
 
 #### Frameworks e Bibliotecas
 
@@ -373,6 +438,8 @@ Os mockups visuais poderão ser elaborados em ferramentas como Figma ou similare
 - **Detector facial dedicado (ex.: SCRFD)**: detecção de face para cadastro e validação;
 - **React + TypeScript**: construção do `admin-web`.
 
+
+
 #### Ferramentas de Desenvolvimento e Gestão
 
 - **VS Code**: IDE principal de desenvolvimento;
@@ -380,6 +447,8 @@ Os mockups visuais poderão ser elaborados em ferramentas como Figma ou similare
 - **Docker Compose**: orquestração local dos serviços do MVP;
 - **pgAdmin**: ferramenta gráfica para administração do PostgreSQL;
 - **Ferramentas de gestão de tarefas** (ex.: Jira, Trello, ou GitHub Projects): organização de backlog, marcos e atividades do projeto.
+
+
 
 #### Licenciamento (visão geral)
 
@@ -399,7 +468,11 @@ O projeto se compromete a:
 
 ---
 
+
+
 ### 3.4. Considerações de Segurança
+
+
 
 #### Riscos Identificados (iniciais)
 
@@ -408,6 +481,8 @@ O projeto se compromete a:
 - **R3 – Injeção de Código / Requests Maliciosos**: exploração de falhas nas APIs central e edge.
 - **R4 – Exposição de Logs Sensíveis**: registros contendo dados pessoais excessivos ou detalhes que permitam identificar pessoas indevidamente.
 - **R5 – Acesso Administrativo Indevido**: usuários não autorizados gerenciando cadastros ou alterando passagens.
+
+
 
 #### Medidas de Mitigação
 
@@ -418,11 +493,15 @@ O projeto se compromete a:
 - **M5 – Logs Anonimizados**: evitar logs com dados pessoais desnecessários; privilegiar IDs e informações agregadas;
 - **M6 – Anti-Spoofing Inicial**: aplicação de regras básicas de consistência para reduzir falsos aceites no MVP; a arquitetura prevê evolução para mecanismos avançados de liveness em etapas futuras.
 
+
+
 #### Normas e Boas Práticas Seguidas
 
 - **OWASP Top 10**: como referência para prevenir vulnerabilidades comuns em APIs e interfaces (injeção, autenticação fraca, exposição de dados, etc.);
 - **ISO/IEC 27001 (como referência)**: controles gerais de segurança da informação aplicados na concepção do sistema (controle de acesso, gestão de ativos, proteção contra malware, etc.);
 - **LGPD**: para tratamento de dados pessoais e sensíveis, com foco em minimização, base legal, transparência e segurança.
+
+
 
 #### Responsabilidade Ética
 
@@ -439,6 +518,8 @@ Referências de ética utilizadas:
 - **OECD AI Principles** – diretrizes para IA responsável, robusta e centrada no ser humano.
 
 ---
+
+
 
 ### 3.5. Conformidade e Normas Aplicáveis
 
@@ -468,11 +549,15 @@ Outras normas específicas de transporte público ou regulamentações setoriais
 
 ---
 
+
+
 # 4. Próximos Passos
 
 A seguir, são apresentados os próximos passos previstos para o desenvolvimento do projeto, considerando o estágio atual (finalização do RFC) e o fluxo esperado para Portfólio I e Portfólio II.
 
 ---
+
+
 
 ## **4.1. Portfólio I – (Documentação e Planejamento)**
 
@@ -502,6 +587,8 @@ Nenhuma implementação completa do sistema é exigida neste momento.
 
 ---
 
+
+
 ## **4.2. Portfólio II – (Desenvolvimento e Testes)**
 
 Após a aprovação do RFC, inicia-se a etapa prática do projeto.
@@ -509,11 +596,15 @@ Aqui ocorre o desenvolvimento real do sistema.
 
 ### **Atividades previstas para Portfólio II:**
 
+
+
 #### **1. Preparação do Ambiente**
 
 - Configurar ambiente dos serviços (`admin-web`, `central-api`, `edge-api`, `vision-service`, `sync-worker`).
 - Configurar PostgreSQL + pgvector na central e banco local no edge.
 - Preparar `docker-compose` para execução integrada do MVP.
+
+
 
 #### **2. Implementação da Pipeline de IA**
 
@@ -521,11 +612,15 @@ Aqui ocorre o desenvolvimento real do sistema.
 - Implementar endpoint de comparação facial com retorno de score/similaridade.
 - Integrar fluxo de cadastro biométrico e validação operacional com o serviço de visão.
 
+
+
 #### **3. Desenvolvimento da Central API**
 
 - Implementar módulos de passageiros, biometria, passagens, validações e sincronização básica.
 - Implementar persistência relacional e vetorial com SQLAlchemy, Alembic e pgvector.
 - Disponibilizar endpoints para administração, sincronização e consulta de validações.
+
+
 
 #### **4. Desenvolvimento do Admin Web**
 
@@ -534,17 +629,23 @@ Aqui ocorre o desenvolvimento real do sistema.
 - Implementar cadastro simples de passagem.
 - Implementar listagem de validações e dashboard operacional básico.
 
+
+
 #### **5. Integração Completa**
 
 - Integrar `edge-api` + `vision-service` para validação local/offline no ônibus.
 - Integrar `sync-worker` com outbox pattern para sincronização de ida e volta.
 - Validar fluxo ponta a ponta (cadastro central → sync edge → validação local → sync eventos → consulta no admin).
 
+
+
 #### **6. Testes e Avaliação**
 
 - Executar testes funcionais por cenário (online, offline e reconexão).
 - Medir latência de validação, consistência de sincronização e qualidade de identificação.
 - Ajustar limiar de similaridade e regras de decisão no edge.
+
+
 
 #### **7. Refinamento e Documentação Final**
 
@@ -553,6 +654,8 @@ Aqui ocorre o desenvolvimento real do sistema.
 - Produzir relatório final, roteiro de demonstração e análise crítica dos resultados.
 
 ---
+
+
 
 ## **4.3. Evolução Arquitetural (Pós-MVP)**
 
@@ -566,23 +669,27 @@ Após validação acadêmica do MVP, a arquitetura permite evolução incrementa
 
 ---
 
+
+
 ## 4.4. Marcos de Acompanhamento (Checkpoints)
 
 
-| **Marco**                           | **Descrição**                                                                                       | **Data**      | **Status** |
-| ----------------------------------- | --------------------------------------------------------------------------------------------------- | ------------- | ---------- |
-| **M1 – RFC Validado**               | Entrega e aprovação do RFC com recorte de MVP e arquitetura modular.                                | Dezembro/2025 | ✅ Concluído |
-| **M2 – Ambiente Base Preparado**    | Serviços principais configurados com Docker Compose e bancos central/edge inicializados.            | Fevereiro/2026 | ✅ Concluído |
-| **M3 – Vision Service Operacional** | Detecção facial, geração de embeddings e comparação facial disponíveis via API.                     | Março/2026    | ✅ Concluído |
-| **M4 – Central API Funcional**      | Módulos de passageiros, biometria, passagens e validações persistindo em PostgreSQL + pgvector.     | Abril/2026    | ✅ Concluído |
-| **M5 – Edge + Sync Básico**         | Validação local/offline ativa no edge e sincronização com outbox pattern funcionando.               | Maio/2026     | ✅ Concluído |
-| **M6 – Admin Web MVP**              | Cadastro de passageiro/biometria/passagem e consulta de validações com dashboard básico.            | Junho/2026    | ✅ Concluído |
-| **M7 – Vertical Slice Integrado**   | Fluxo completo ponta a ponta validado em cenário de teste (cadastro → sync → validação → consulta). | Junho/2026   | ✅ Concluído |
-| **M8 – Deploy em Produção**         | Todos os serviços implantados no Railway com CI/CD via GitHub Actions.                              | Junho/2026    | ✅ Concluído |
-| **M9 – Entrega Final do TCC**       | Documentação final, análise de resultados e demonstração técnica do MVP offline-first.              | Julho/2026    | 🔄 Em andamento |
+| **Marco**                           | **Descrição**                                                                                       | **Data**       | **Status**      |
+| ----------------------------------- | --------------------------------------------------------------------------------------------------- | -------------- | --------------- |
+| **M1 – RFC Validado**               | Entrega e aprovação do RFC com recorte de MVP e arquitetura modular.                                | Dezembro/2025  | ✅ Concluído     |
+| **M2 – Ambiente Base Preparado**    | Serviços principais configurados com Docker Compose e bancos central/edge inicializados.            | Fevereiro/2026 | ✅ Concluído     |
+| **M3 – Vision Service Operacional** | Detecção facial, geração de embeddings e comparação facial disponíveis via API.                     | Março/2026     | ✅ Concluído     |
+| **M4 – Central API Funcional**      | Módulos de passageiros, biometria, passagens e validações persistindo em PostgreSQL + pgvector.     | Abril/2026     | ✅ Concluído     |
+| **M5 – Edge + Sync Básico**         | Validação local/offline ativa no edge e sincronização com outbox pattern funcionando.               | Maio/2026      | ✅ Concluído     |
+| **M6 – Admin Web MVP**              | Cadastro de passageiro/biometria/passagem e consulta de validações com dashboard básico.            | Junho/2026     | ✅ Concluído     |
+| **M7 – Vertical Slice Integrado**   | Fluxo completo ponta a ponta validado em cenário de teste (cadastro → sync → validação → consulta). | Junho/2026     | ✅ Concluído     |
+| **M8 – Deploy em Produção**         | Todos os serviços implantados no Railway com CI/CD via GitHub Actions.                              | Junho/2026     | ✅ Concluído     |
+| **M9 – Entrega Final do TCC**       | Documentação final, análise de resultados e demonstração técnica do MVP offline-first.              | Julho/2026     | 🔄 Em andamento |
 
 
 ---
+
+
 
 ## 5. Referências
 
@@ -613,7 +720,11 @@ Após validação acadêmica do MVP, a arquitetura permite evolução incrementa
 
 ---
 
+
+
 ## 6. Apêndices
+
+
 
 ### Apêndice A – Diagrama de Casos de Uso (UML)
 
@@ -642,6 +753,8 @@ flowchart LR
 
 
 ---
+
+
 
 ### Apêndice B – Diagrama de Containers (C4 – Nível 2)
 
@@ -675,6 +788,8 @@ flowchart LR
 
 ---
 
+
+
 ### Apêndice C – Diagrama de Componentes (Visão Interna da API)
 
 ```mermaid
@@ -706,6 +821,8 @@ flowchart LR
 
 
 ---
+
+
 
 ### Apêndice D – Diagrama de Sequência (Fluxo de Validação de Embarque)
 
@@ -739,7 +856,11 @@ sequenceDiagram
 
 ---
 
+
+
 ## 7. Avaliações de Professores
+
+
 
 ### Professor(a) 1
 
@@ -750,6 +871,8 @@ sequenceDiagram
 
 ---
 
+
+
 ### Professor(a) 2
 
 - **Nome:**
@@ -758,6 +881,8 @@ sequenceDiagram
 - **Assinatura:**
 
 ---
+
+
 
 ### Professor(a) 3
 

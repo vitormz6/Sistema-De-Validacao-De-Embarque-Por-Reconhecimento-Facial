@@ -4,6 +4,7 @@ from typing import AsyncGenerator
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
+from prometheus_fastapi_instrumentator import Instrumentator
 
 from app.core.config import settings
 from app.core.exceptions import register_exception_handlers
@@ -128,6 +129,8 @@ def create_app() -> FastAPI:
     app.include_router(validations_router)
     app.include_router(sync_router)
     app.include_router(sync_admin_router)
+
+    Instrumentator().instrument(app).expose(app, endpoint="/metrics")
 
     return app
 

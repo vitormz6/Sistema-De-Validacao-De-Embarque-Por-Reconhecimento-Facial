@@ -4,14 +4,11 @@ import {
   DashboardIcon,
   ListIcon,
   LogoutIcon,
-  MoonIcon,
   PlaneIcon,
-  SunIcon,
   UsersIcon,
 } from "@/components/ui/icons";
 import { useAuth } from "@/modules/auth/AuthContext";
 
-import { useTheme } from "./theme/ThemeContext";
 import styles from "./AppLayout.module.css";
 
 const NAV_ITEMS = [
@@ -32,7 +29,6 @@ function getInitials(name: string): string {
 
 export function AppLayout() {
   const { user, logout } = useAuth();
-  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -75,16 +71,6 @@ export function AppLayout() {
         </div>
 
         <div className={styles.sidebarFooter}>
-          <button
-            type="button"
-            className={styles.themeToggle}
-            onClick={toggleTheme}
-            aria-label="Alternar tema"
-          >
-            {theme === "dark" ? <SunIcon /> : <MoonIcon />}
-            <span>{theme === "dark" ? "Tema claro" : "Tema escuro"}</span>
-          </button>
-
           <div className={styles.userRow}>
             <div className={styles.userAvatar}>
               {user?.full_name ? getInitials(user.full_name) : "?"}

@@ -1,0 +1,19 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: central-api
+    static_configs:
+      - targets: ["central-api:8000"]
+    metrics_path: /metrics
+
+  - job_name: edge-api
+    static_configs:
+      - targets: ["edge-api:8001"]
+    metrics_path: /metrics
+
+  - job_name: vision-service
+    static_configs:
+      - targets: ["vision-service:8002"]
+    metrics_path: /metrics
