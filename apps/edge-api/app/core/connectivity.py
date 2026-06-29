@@ -1,16 +1,8 @@
-"""
-Tracks whether this bus currently has a path to the central API, without
-putting a network round-trip on the boarding-validation hot path (RNF01
-wants a decision in ≤2s; blocking on a possibly-timing-out ping to a
-central server that might be unreachable would defeat that).
-
-`check_now()` does the actual HTTP probe and is meant to be called from the
-health endpoint (RF14) — whatever cadence the operator UI polls
-`/local/device/status` at is the connectivity check's effective frequency.
-`is_offline` just reads the last cached result; until the first check ever
-runs, it conservatively defaults to True (assume offline rather than
-optimistically AUTHORIZED-tag attempts as online).
-"""
+# Verifica se o ônibus tem conexão com a central e guarda o último resultado em cache.
+# O check real só roda quando o health endpoint é chamado — na validação de embarque
+# só lê o cache pra não adicionar latência.
+# Por padrão assume offline até o primeiro check.
+# TODO: talvez seja melhor rodar o check em background periodicamente
 
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -41,11 +33,6 @@ class ConnectivityTracker:
 
     async def check_now(self) -> bool:
         try:
-            # trust_env=False: this is a fixed, internally-known service URL,
-            # not a browser-style outbound request — it shouldn't depend on
-            # whatever ambient HTTP_PROXY/ALL_PROXY env vars happen to be set
-            # on the host (and avoids requiring optional SOCKS extras just to
-            # reach a sibling container).
             async with httpx.AsyncClient(
                 base_url=settings.CENTRAL_API_URL,
                 timeout=settings.CENTRAL_API_PING_TIMEOUT_SECONDS,

@@ -25,7 +25,6 @@ class PassengerCacheRepository:
         document_number: str,
         status: str,
     ) -> LocalPassenger:
-        """Used by the future sync-worker (and by tests/seed scripts here)."""
         passenger = await self.get_by_id(id)
 
         if passenger is None:
@@ -51,17 +50,7 @@ class EmbeddingCacheRepository:
         self.session = session
 
     async def list_active(self) -> list[LocalFaceEmbedding]:
-        """
-        Returns only embeddings whose `active` flag is True. This used to
-        return the entire table unconditionally on the assumption that
-        central-api only ever syncs down embeddings belonging to passengers
-        with active biometrics — that assumption was false for incremental
-        pulls: a revoked embedding stays in the local cache forever unless
-        something marks it inactive. Sync-worker now persists central's
-        `active` flag verbatim (see `EmbeddingPullItem`/`upsert` below), so
-        filtering on it here is what actually stops a revoked embedding
-        from being offered as a match candidate during boarding validation.
-        """
+        # filtra só active=True — embeddings revogados não devem entrar no matching
         statement = select(LocalFaceEmbedding).where(LocalFaceEmbedding.active.is_(True))
         result = await self.session.execute(statement)
         return list(result.scalars().all())

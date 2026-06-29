@@ -1,8 +1,6 @@
-"""
-1:N face matching against the local cache — plain NumPy cosine distance,
-no ANN index. A single bus's active passenger list is small (tens to a
-few hundred), so a linear scan comfortably fits the RNF01 ≤2s budget.
-"""
+# Matching facial contra o cache local — distância coseno com numpy.
+# Varredura linear funciona bem pra listas pequenas (um ônibus tem poucos passageiros).
+# TODO: considerar índice ANN se a lista crescer muito
 
 import uuid
 from dataclasses import dataclass
@@ -34,7 +32,7 @@ def find_nearest(
     matrix = np.asarray([candidate.embedding for candidate in candidates], dtype=np.float64)
     matrix_norms = np.linalg.norm(matrix, axis=1)
 
-    # Avoid division by zero for any degenerate cached row.
+    # evita divisão por zero se o embedding vier zerado
     safe_norms = np.where(matrix_norms == 0, np.inf, matrix_norms)
 
     cosine_similarities = (matrix @ probe) / (safe_norms * probe_norm)

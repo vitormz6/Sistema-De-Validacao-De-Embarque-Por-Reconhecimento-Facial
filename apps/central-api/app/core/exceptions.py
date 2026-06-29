@@ -21,9 +21,6 @@ class ConflictError(DomainError):
 
 class ValidationFailedError(DomainError):
     def __init__(self, message: str = "Validation failed") -> None:
-        # Literal status code: Starlette has renamed the 422 constant across
-        # versions (HTTP_422_UNPROCESSABLE_ENTITY -> _CONTENT); the numeric
-        # value itself is stable, so we avoid depending on either name.
         super().__init__(message=message, status_code=422)
 
 

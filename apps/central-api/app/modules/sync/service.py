@@ -22,12 +22,7 @@ from app.modules.validations.service import ValidationService
 
 
 class SyncService:
-    """
-    Composition layer for the offline-first sync flow (RF06, RF10, RF11).
-    Pull/push reuse the read paths of passengers/biometrics/tickets and the
-    write path of validations — sync never re-implements that logic, it
-    only orchestrates it for the edge/device audience.
-    """
+    """Orquestra os endpoints de sincronização central↔edge (pull/push/ack)."""
 
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
@@ -118,7 +113,7 @@ class SyncService:
         return _to_status_response(device_state)
 
     async def list_devices(self) -> SyncDeviceListResponse:
-        """Backs the Admin Web dashboard's device sync table (RF13)."""
+        """Lista todos os devices registrados para o dashboard do admin."""
         device_states = await self.device_repository.list_all()
         return SyncDeviceListResponse(
             devices=[_to_status_response(device_state) for device_state in device_states]

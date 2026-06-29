@@ -1,24 +1,6 @@
-"""
-Basic liveness / anti-spoofing heuristic (RFC 3.4 - R2 "Ataques de
-Spoofing" / M6 "Anti-Spoofing Inicial": "aplicação de regras básicas de
-consistência para reduzir falsos aceites no MVP; a arquitetura prevê
-evolução para mecanismos avançados de liveness em etapas futuras").
-
-This is intentionally NOT a trained anti-spoofing model — just two cheap
-signals computed on the face crop:
-
-1. Frequency-domain "peakiness": printed photos and screen recaptures
-   often introduce halftone/moire patterns that show up as a few
-   concentrated high-frequency spikes, instead of the smoother frequency
-   falloff a direct camera capture of a real face tends to have.
-2. Flat sharpness: an unusually low Laplacian variance combined with the
-   peakiness signal raises confidence that the input is a flat
-   reproduction rather than a live face.
-
-Both signals are folded into a single `liveness_score` in [0, 1] (1 = most
-likely live); `spoof_suspected` is a hard boolean cut on the frequency
-signal alone, since it's the more specific indicator of the two.
-"""
+# Detecção básica de liveness via análise de frequência e nitidez.
+# Não é um modelo treinado — só heurística por enquanto.
+# TODO: substituir por modelo de anti-spoofing treinado se der tempo
 
 from dataclasses import dataclass
 
@@ -48,8 +30,7 @@ def _frequency_peak_ratio(gray_crop: np.ndarray) -> float:
     height, width = magnitude.shape
     center_y, center_x = height // 2, width // 2
 
-    # Mask out the low-frequency core (DC + immediate neighborhood), which
-    # dominates any natural image and isn't informative for this check.
+    # ignora as baixas frequências (DC), que dominam qualquer imagem
     radius = max(2, min(height, width) // 8)
     y_grid, x_grid = np.ogrid[:height, :width]
     low_freq_mask = (y_grid - center_y) ** 2 + (x_grid - center_x) ** 2 <= radius**2

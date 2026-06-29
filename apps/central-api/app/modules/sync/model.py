@@ -7,10 +7,7 @@ from app.database.base import Base
 
 
 class SyncDeviceState(Base):
-    """
-    Tracks the sync cursor for each edge device (bus). One row per device,
-    upserted on every pull/push/ack cycle (see README2 section 13).
-    """
+    """Cursor de sincronização por ônibus. Uma linha por device, atualizada a cada ciclo."""
 
     __tablename__ = "sync_device_state"
 

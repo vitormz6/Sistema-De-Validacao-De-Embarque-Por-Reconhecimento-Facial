@@ -1,12 +1,5 @@
-"""
-Read-mostly local cache of what the central API synced down (RF06). Rows
-here are upserted by the (not yet implemented) `sync-worker`; edge-api
-itself only reads from these tables when deciding on a boarding attempt.
-
-IDs are NOT locally generated — they're the same UUIDs central-api uses,
-so a synced row can be safely re-upserted (matched by `id`) without
-creating duplicates.
-"""
+# Modelos do cache local — dados sincronizados da central pelo sync-worker.
+# Os IDs vêm da central, então upsert por ID não cria duplicata.
 
 import uuid
 from datetime import datetime
@@ -43,12 +36,7 @@ class LocalPassenger(Base):
 
 
 class LocalFaceEmbedding(Base):
-    """
-    No pgvector here on purpose — `postgres-edge` is a plain Postgres
-    instance (see docker-compose.yml) and a single bus's active passenger
-    list is small enough that a linear NumPy cosine-distance scan
-    (app/modules/cache/matching.py) is plenty fast without an ANN index.
-    """
+    # sem pgvector no edge — a lista é pequena e varredura linear com numpy é suficiente
 
     __tablename__ = "local_face_embeddings"
 
@@ -66,13 +54,8 @@ class LocalFaceEmbedding(Base):
     model_name: Mapped[str] = mapped_column(String(60), nullable=False)
     model_version: Mapped[str] = mapped_column(String(60), nullable=False)
 
-    # Mirrors central-api's `FaceEmbedding.active`. Sync-worker writes this
-    # from the `EmbeddingSyncItem.active` field on every pull — including
-    # incremental pulls for embeddings that were just revoked. Without this
-    # column, a revoked embedding had no way to ever stop being offered as
-    # a local match candidate once cached — see `EmbeddingCacheRepository.
-    # list_active` below, and central-api.md / edge-api.md for the full
-    # writeup of the bug this fixes.
+    # precisa espelhar o active da central — sem isso embeddings revogados
+    # continuavam sendo usados como candidatos no matching
     active: Mapped[bool] = mapped_column(
         Boolean,
         nullable=False,

@@ -26,17 +26,8 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
 
 def _iter_api_routes(routes):
-    """
-    Recursively flattens `app.routes` into the underlying `APIRoute`
-    objects (the ones with `.dependant`/`.path`/`.methods`).
-
-    Needed because newer FastAPI/Starlette versions wrap routes added via
-    `include_router()` in an internal `_IncludedRouter` proxy for lazy
-    matching — the real `APIRoute` list lives at
-    `_IncludedRouter.original_router.routes`. Falling back to a generic
-    `.routes` attribute keeps this working for plain `APIRouter`/`Mount`
-    nesting on older FastAPI versions too.
-    """
+    # percorre as rotas recursivamente — versões mais novas do FastAPI
+    # encapsulam os routers em um proxy, então precisa desembrulhar
     for route in routes:
         if hasattr(route, "dependant"):
             yield route
@@ -47,12 +38,7 @@ def _iter_api_routes(routes):
 
 
 def _dependant_requires_bearer_auth(dependant) -> bool:
-    """
-    Walks a route's dependency tree looking for `get_current_user` /
-    `require_admin` at any depth (the latter itself depends on the former).
-    `auth/login`, `health/*` and `sync/*` (device-key, not JWT) don't use
-    either, so they're correctly left unprotected in the schema.
-    """
+    # verifica se a rota usa get_current_user ou require_admin em alguma dependência
     if dependant is None:
         return False
 
@@ -63,17 +49,8 @@ def _dependant_requires_bearer_auth(dependant) -> bool:
 
 
 def configure_openapi_bearer_auth(app: FastAPI) -> None:
-    """
-    Keeps runtime auth unchanged, but fixes Swagger's "Authorize" UX: by
-    default FastAPI's auto-detected `OAuth2PasswordBearer` scheme makes the
-    Authorize dialog ask for client_id/client_secret/username/password,
-    none of which this API uses (login is a plain JSON POST). This swaps
-    the documented scheme for a plain HTTP Bearer — a single token field —
-    and explicitly marks which operations require it, since
-    `oauth2_scheme` is declared with `auto_error=False` (so we can raise
-    our own 401s), which means FastAPI's own auto-detection leaves
-    `security` unset on every operation.
-    """
+    # O FastAPI detecta OAuth2 automaticamente mas o dialog do Swagger
+    # fica errado (pede client_id etc). Aqui troca pelo Bearer simples.
 
     def custom_openapi() -> dict:
         if app.openapi_schema:
@@ -87,8 +64,6 @@ def configure_openapi_bearer_auth(app: FastAPI) -> None:
         )
 
         components = schema.setdefault("components", {})
-        # Drop the auto-detected OAuth2 scheme entirely — only the simple
-        # Bearer input should show up in "Authorize".
         components["securitySchemes"] = {
             "BearerAuth": {
                 "type": "http",

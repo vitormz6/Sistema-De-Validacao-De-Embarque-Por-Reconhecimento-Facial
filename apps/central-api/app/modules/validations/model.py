@@ -9,12 +9,7 @@ from app.database.base import Base
 
 
 class BoardingValidation(Base):
-    """
-    Consolidated record of a boarding attempt, synced from the edge (see
-    README2 section 5.8 / 6.1). Rows here always originate at the edge and
-    arrive through `POST /sync/push`; the central-api never creates them
-    directly.
-    """
+    """Registro de uma tentativa de embarque, sincronizado pelo edge via /sync/push."""
 
     __tablename__ = "boarding_validations"
 
@@ -24,8 +19,7 @@ class BoardingValidation(Base):
         default=uuid.uuid4,
     )
 
-    # Idempotency key generated on the edge so retried syncs don't duplicate
-    # the same boarding attempt (RF11).
+    # ID gerado no edge — evita duplicar o mesmo evento se o sync tentar de novo
     external_id: Mapped[str] = mapped_column(
         String(64),
         nullable=False,

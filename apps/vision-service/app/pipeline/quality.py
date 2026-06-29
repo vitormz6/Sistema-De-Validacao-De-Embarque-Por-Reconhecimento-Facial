@@ -1,13 +1,5 @@
-"""
-Face quality scoring (RFC 5.4 - Biometria: "score mínimo, qualidade da
-imagem"). Pure functions over numpy arrays so they're testable without any
-real model weights — only `face.bbox` / `face.keypoints` / `det_score` are
-needed, which can be hand-built in tests.
-
-The score combines five independent, cheap-to-compute signals instead of a
-single metric, so a single bad axis (e.g. a slightly tilted but otherwise
-sharp, well-lit photo) doesn't zero out the whole score.
-"""
+# Cálculo do score de qualidade da imagem facial.
+# Combina 5 métricas: detecção, tamanho, nitidez, brilho e pose.
 
 import cv2
 import numpy as np
@@ -83,15 +75,8 @@ def _brightness_score(face_crop: np.ndarray) -> float:
 
 
 def _pose_score(keypoints: np.ndarray | None) -> float:
-    """
-    Rough frontalness estimate from the 5-point landmark layout insightface
-    returns: [left_eye, right_eye, nose, left_mouth, right_mouth]. A
-    perfectly frontal face has the nose roughly centered between the eyes;
-    the further it drifts, the more the head is turned.
-    """
+    # estima se a face está de frente pela posição do nariz em relação aos olhos
     if keypoints is None or len(keypoints) < 3:
-        # No landmarks available (shouldn't normally happen once detection
-        # succeeded) — don't penalize, just stay neutral.
         return 0.75
 
     left_eye, right_eye, nose = keypoints[0], keypoints[1], keypoints[2]
