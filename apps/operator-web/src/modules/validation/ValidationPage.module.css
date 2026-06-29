@@ -10,6 +10,5 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  padding: var(--space-4);
   min-height: 0;
 }

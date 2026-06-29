@@ -5,7 +5,6 @@
   flex: 1;
   width: 100%;
   min-height: 0;
-  gap: var(--space-3);
 }
 
 /* ─── Camera wrapper ─── */
@@ -15,17 +14,11 @@
   flex: 1;
   min-height: 0;
   background: #000;
-  border-radius: var(--radius-xl);
   overflow: hidden;
-  box-shadow: var(--shadow-lg);
-  transition: box-shadow 0.3s ease;
 }
 
 .cameraActive {
-  box-shadow:
-    var(--shadow-lg),
-    0 0 0 3px rgba(99, 102, 241, 0.5),
-    0 0 32px rgba(99, 102, 241, 0.25);
+  outline: 1px solid var(--color-accent-border);
 }
 
 .video {
@@ -45,11 +38,10 @@
   pointer-events: none;
 }
 
-/* ─── Scanning animation overlay (shown when idle, no face) ─── */
 
 .scanOverlay {
   position: absolute;
-  inset: var(--space-5);
+  inset: var(--space-6);
   pointer-events: none;
 }
 
@@ -58,68 +50,34 @@
 .scanCornerBL,
 .scanCornerBR {
   position: absolute;
-  width: 28px;
-  height: 28px;
-  border-color: rgba(99, 102, 241, 0.7);
+  width: 20px;
+  height: 20px;
+  border-color: rgba(255, 255, 255, 0.18);
   border-style: solid;
-  animation: cornerPulse 2s ease-in-out infinite;
 }
 
 .scanCornerTL {
-  top: 0;
-  left: 0;
-  border-width: 2px 0 0 2px;
-  border-radius: 4px 0 0 0;
+  top: 0; left: 0;
+  border-width: 1px 0 0 1px;
 }
 
 .scanCornerTR {
-  top: 0;
-  right: 0;
-  border-width: 2px 2px 0 0;
-  border-radius: 0 4px 0 0;
+  top: 0; right: 0;
+  border-width: 1px 1px 0 0;
 }
 
 .scanCornerBL {
-  bottom: 0;
-  left: 0;
-  border-width: 0 0 2px 2px;
-  border-radius: 0 0 0 4px;
+  bottom: 0; left: 0;
+  border-width: 0 0 1px 1px;
 }
 
 .scanCornerBR {
-  bottom: 0;
-  right: 0;
-  border-width: 0 2px 2px 0;
-  border-radius: 0 0 4px 0;
-}
-
-@keyframes cornerPulse {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 1; }
+  bottom: 0; right: 0;
+  border-width: 0 1px 1px 0;
 }
 
 .scanLine {
-  position: absolute;
-  left: 8px;
-  right: 8px;
-  height: 2px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(99, 102, 241, 0.8) 40%,
-    rgba(129, 140, 248, 1) 50%,
-    rgba(99, 102, 241, 0.8) 60%,
-    transparent 100%
-  );
-  animation: scanMove 2.4s ease-in-out infinite;
-  box-shadow: 0 0 8px rgba(99, 102, 241, 0.6);
-}
-
-@keyframes scanMove {
-  0% { top: 8px; opacity: 0; }
-  10% { opacity: 1; }
-  90% { opacity: 1; }
-  100% { top: calc(100% - 10px); opacity: 0; }
+  display: none;
 }
 
 /* ─── Processing overlay ─── */
@@ -130,18 +88,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.55);
-  backdrop-filter: blur(2px);
+  background: rgba(0, 0, 0, 0.6);
 }
 
 .spinner {
   display: block;
-  width: 52px;
-  height: 52px;
-  border: 3px solid rgba(255, 255, 255, 0.2);
-  border-top-color: #ffffff;
+  width: 36px;
+  height: 36px;
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  border-top-color: var(--color-accent);
   border-radius: 50%;
-  animation: spin 0.75s linear infinite;
+  animation: spin 0.7s linear infinite;
 }
 
 @keyframes spin {
@@ -158,35 +115,37 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-3);
-  background: rgba(0, 0, 0, 0.75);
-  color: #fff;
+  background: rgba(0, 0, 0, 0.8);
   padding: var(--space-5);
   text-align: center;
 }
 
 .errorIcon {
-  font-size: 40px;
+  font-size: 28px;
+  opacity: 0.6;
 }
 
 .errorText {
-  font-size: var(--font-size-md);
-  color: #fca5a5;
-  max-width: 320px;
+  font-size: var(--font-size-sm);
+  color: var(--color-danger);
+  max-width: 280px;
+  font-family: var(--font-mono);
 }
 
 /* ─── Status label ─── */
 
 .statusLabel {
-  font-size: var(--font-size-md);
-  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
   text-align: center;
-  letter-spacing: 0.01em;
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
   padding: var(--space-2) 0;
   flex-shrink: 0;
 }
 
 .statusProcessing {
-  color: #818cf8;
+  color: var(--color-accent);
 }
 
 /* ─── Hidden capture canvas ─── */

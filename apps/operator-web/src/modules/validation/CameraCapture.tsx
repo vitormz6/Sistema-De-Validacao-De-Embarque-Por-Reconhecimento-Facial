@@ -111,11 +111,9 @@ export function CameraCapture({ onCapture, autoDetect, processing }: Props) {
       const sw = width * scaleX;
       const sh = height * scaleY;
 
-      /* Glow effect */
-      ctx.shadowColor = "rgba(99, 102, 241, 0.8)";
-      ctx.shadowBlur = 12;
-      ctx.strokeStyle = "#6366f1";
-      ctx.lineWidth = 2.5;
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = "#00C9A7";
+      ctx.lineWidth = 1.5;
 
       /* Corner brackets — top-left */
       const corner = Math.min(sw, sh) * 0.22;
@@ -146,7 +144,6 @@ export function CameraCapture({ onCapture, autoDetect, processing }: Props) {
       ctx.lineTo(sx + sw, sy + sh - corner);
       ctx.stroke();
 
-      ctx.shadowBlur = 0;
     });
   }
 
