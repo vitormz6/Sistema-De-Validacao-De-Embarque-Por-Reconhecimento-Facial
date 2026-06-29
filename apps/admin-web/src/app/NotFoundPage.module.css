@@ -9,15 +9,17 @@
 }
 
 .code {
-  font-size: 72px;
+  font-size: 80px;
   font-weight: 800;
   color: var(--color-border-strong);
-  letter-spacing: -0.04em;
+  letter-spacing: -0.06em;
   line-height: 1;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
 }
 
 .message {
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-md);
   color: var(--color-text-secondary);
   margin-bottom: var(--space-2);
 }

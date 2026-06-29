@@ -1,16 +1,5 @@
-"""
-HTTP client for the `vision-service`.
-
-The vision-service owns face detection, quality assessment and embedding
-generation (SCRFD + ArcFace, see README2 section 3.2). The central-api never
-runs inference itself — it always delegates to this service, keeping the
-"IA isolada" boundary defined in the architecture.
-
-NOTE: `vision-service` is not implemented yet (next module to build). This
-client encodes the contract the central-api expects from it so biometrics
-enrollment/compare can be developed and tested against a fake/mocked client
-in the meantime.
-"""
+# Cliente HTTP para o vision-service (detecção + embedding).
+# A central-api nunca roda inferência diretamente — delega tudo aqui.
 
 from dataclasses import dataclass
 
@@ -30,10 +19,7 @@ class FaceEmbeddingResult:
     detector_name: str | None
     detector_version: str | None
     reason: str | None = None
-    # Basic liveness heuristic (RFC 3.4 - R2/M6). Defaulted so older
-    # vision-service payloads / existing test fixtures without these keys
-    # stay valid — absence is treated as "no liveness signal available",
-    # not as a pass.
+    # campos de liveness opcionais — ausência não é considerada aprovação
     liveness_score: float | None = None
     spoof_suspected: bool | None = None
 
