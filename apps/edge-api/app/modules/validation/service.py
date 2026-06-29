@@ -25,12 +25,7 @@ REASON_NO_ACTIVE_TICKET = "NO_ACTIVE_TICKET"
 
 
 class BoardingValidationService:
-    """
-    The RF07/RF08/RF09 decision pipeline: everything it touches is local
-    (this DB + the on-bus vision-service) — no call to central-api ever
-    sits on this path, which is what actually makes boarding validation
-    offline-first rather than just "offline-tolerant".
-    """
+    """Pipeline de validação de embarque. Tudo local — sem chamada à central."""
 
     def __init__(
         self,

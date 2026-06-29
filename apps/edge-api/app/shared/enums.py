@@ -1,12 +1,5 @@
-"""
-Intentionally duplicated from central-api's `app/shared/enums.py`: edge-api
-and central-api are separate deployable services with no shared package in
-this monorepo, and these values must stay identical since validation
-events flow from here into central-api's `boarding_validations` table
-as-is during sync. If a third service needs them, promoting this to a
-shared library becomes worth the extra build complexity — not yet.
-"""
-
+# Duplicado do central-api — os dois precisam dos mesmos valores pra o sync funcionar.
+# TODO: extrair pra pacote compartilhado se mais serviços precisarem
 from enum import StrEnum
 
 

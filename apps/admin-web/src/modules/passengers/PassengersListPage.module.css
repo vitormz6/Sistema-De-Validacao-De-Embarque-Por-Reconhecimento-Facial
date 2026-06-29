@@ -3,20 +3,23 @@
   align-items: flex-start;
   justify-content: space-between;
   margin-bottom: var(--space-5);
+  padding-bottom: var(--space-5);
+  border-bottom: 1px solid var(--color-border);
   gap: var(--space-4);
 }
 
 .heading {
-  font-size: var(--font-size-xl);
-  font-weight: 700;
+  font-size: var(--font-size-lg);
+  font-weight: 600;
   color: var(--color-text-primary);
-  letter-spacing: -0.02em;
-  margin-bottom: var(--space-1);
+  letter-spacing: -0.01em;
+  margin-bottom: 2px;
 }
 
 .subheading {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
   color: var(--color-text-secondary);
+  font-family: var(--font-mono);
 }
 
 .filters {
@@ -24,11 +27,11 @@
 }
 
 .searchInput {
-  max-width: 320px;
+  max-width: 280px;
 }
 
 .statusSelect {
-  width: 180px;
+  width: 160px;
 }
 
 .alert {

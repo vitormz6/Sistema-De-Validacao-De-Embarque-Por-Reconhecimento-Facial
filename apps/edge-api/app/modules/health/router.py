@@ -72,13 +72,7 @@ async def sync_status(
     session: AsyncSession = Depends(get_db_session),
     tracker: ConnectivityTracker = Depends(get_connectivity_tracker),
 ) -> SyncStatusResponse:
-    """
-    Cheaper than `/local/device/status`: reads the last cached connectivity
-    result instead of pinging central-api again, so the operator UI can
-    poll this frequently for the online/offline indicator without adding
-    load. The actual sync `pull`/`push`/`ack` cycle is the sync-worker's
-    job — this only reports the local outbox queue depth (RF14).
-    """
+    # versão leve do device/status — só lê o cache de conectividade, não pinga a central
     log_repository = ValidationLogRepository(session)
 
     return SyncStatusResponse(

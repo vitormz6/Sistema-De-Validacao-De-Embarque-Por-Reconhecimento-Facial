@@ -23,12 +23,8 @@ router = APIRouter(
     dependencies=[Depends(verify_edge_device_key)],
 )
 
-# Separate router (same `/sync` prefix, different auth): the routes above
-# authenticate edge *devices* via the shared X-Device-Key secret, but
-# Admin Web's dashboard (RF13) is a human admin/operator acting through a
-# JWT, not a device. A route can't selectively opt out of a dependency
-# declared on its router, hence the second APIRouter instead of bolting
-# this onto `router` above.
+# Router separado para rotas admin — as de cima usam X-Device-Key,
+# as do painel usam JWT, então não dá pra misturar no mesmo router.
 admin_router = APIRouter(prefix="/sync", tags=["sync"])
 
 

@@ -8,13 +8,7 @@ from app.schemas import PullResult, PushResult
 
 
 class CentralApiClient:
-    """
-    Thin async wrapper around central-api's `/sync/*` endpoints
-    (`app/modules/sync/router.py`), authenticated with the shared
-    `X-Device-Key` header (`verify_edge_device_key`) rather than a user
-    JWT — this worker isn't acting on behalf of an admin, it's the device
-    itself.
-    """
+    """Cliente HTTP para os endpoints /sync/* da central-api. Autentica com X-Device-Key."""
 
     def __init__(
         self,

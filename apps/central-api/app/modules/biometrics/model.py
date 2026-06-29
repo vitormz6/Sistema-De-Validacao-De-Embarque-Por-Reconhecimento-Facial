@@ -12,12 +12,8 @@ from app.database.base import Base
 
 class FaceEmbedding(Base):
     """
-    Stores one facial embedding "version" for a passenger.
-
-    Versioning rule (see RFC 5.4 - Biometria): only one embedding stays
-    `active=True` per passenger at a time. Re-enrollment revokes the
-    previous active row instead of deleting it, preserving history for
-    audit purposes.
+    Embedding facial de um passageiro. Só um pode estar active=True por vez.
+    Novo cadastro revoga o anterior em vez de deletar (mantém histórico).
     """
 
     __tablename__ = "face_embeddings"

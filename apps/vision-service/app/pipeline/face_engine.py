@@ -1,16 +1,5 @@
-"""
-Thin wrapper around insightface's `FaceAnalysis`.
-
-We only load the "detection" (SCRFD) and "recognition" (ArcFace) sub-models
-from the buffalo_l pack — it also ships age/gender/landmark models we don't
-need for boarding validation, so skipping them keeps memory and startup
-time down.
-
-Model weights are downloaded automatically by insightface on first use
-(into `settings.MODEL_ROOT`) and require outbound internet access on first
-boot; afterwards they're read from the local cache/volume (see
-docker-compose.yml's `insightface-models` volume).
-"""
+# Wrapper do insightface. Carrega só detecção (SCRFD) e reconhecimento (ArcFace),
+# os outros módulos do buffalo_l (idade, gênero) não são necessários.
 
 from dataclasses import dataclass
 from threading import Lock
@@ -32,14 +21,7 @@ class DetectedFace:
 
 
 class FaceEngine:
-    """
-    Lazily initializes the underlying insightface `FaceAnalysis` instance.
-
-    Lazy on purpose: importing/constructing the engine must not trigger a
-    model download or ONNX session creation at module import time (would
-    slow down app startup and break tests that never need real inference)
-    — it only happens on the first real call to `detect_faces`.
-    """
+    """Inicializa o modelo insightface de forma lazy (só carrega quando precisar)."""
 
     def __init__(self) -> None:
         self._app: Any | None = None
@@ -72,10 +54,7 @@ class FaceEngine:
         return self._app is not None
 
     def detect_faces(self, image: np.ndarray) -> list[DetectedFace]:
-        """
-        `image` must be a BGR numpy array (as returned by `cv2.imdecode`),
-        the format both OpenCV and insightface expect.
-        """
+        """Recebe imagem BGR (OpenCV) e retorna as faces detectadas."""
         face_app = self._ensure_loaded()
         raw_faces = face_app.get(image)
 

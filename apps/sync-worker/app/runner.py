@@ -17,9 +17,8 @@ logger = get_logger(__name__)
 
 class SyncRunner:
     """
-    One pull cycle + one push cycle (RF06/RF10/RF11). Both halves commit
-    independently so a push failure never rolls back a successful pull
-    (and vice-versa) — they're unrelated from central-api's point of view.
+    Executa um ciclo de pull (central→edge) e um de push (edge→central).
+    Os dois commits são independentes — falha no push não desfaz o pull.
     """
 
     def __init__(self, session: AsyncSession, client: CentralApiClient | None = None) -> None:

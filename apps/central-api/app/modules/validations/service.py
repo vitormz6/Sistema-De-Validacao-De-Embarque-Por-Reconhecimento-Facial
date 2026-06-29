@@ -21,10 +21,8 @@ class ValidationService:
 
     async def register_events(self, events: list[ValidationEventIngest]) -> IngestResult:
         """
-        Idempotently ingests a batch of boarding validation events coming
-        from an edge device's sync-worker (RF10/RF11). Each event carries a
-        client-generated `external_id`; retried pushes simply land in
-        `duplicated` instead of creating a second row.
+        Recebe um batch de eventos de embarque vindos do edge.
+        Usa external_id para evitar duplicata se o sync tentar de novo.
         """
         result = IngestResult()
 

@@ -1,11 +1,4 @@
-"""
-Generic security primitives: password hashing, JWT issuing/decoding and the
-shared-key check used by edge devices when calling the sync endpoints.
-
-This module intentionally has no dependency on any domain module (no DB
-access). User lookup and role checks live in `app.modules.auth.dependencies`,
-which composes these primitives with the auth repository.
-"""
+# Funções de segurança: hash de senha, JWT e verificação da chave do edge.
 
 import uuid
 from datetime import datetime, timedelta, timezone
@@ -60,10 +53,6 @@ def decode_access_token(token: str) -> dict[str, Any]:
 
 
 def verify_edge_device_key(x_device_key: str | None = Header(default=None)) -> None:
-    """
-    FastAPI dependency that protects edge-facing sync endpoints with a shared
-    secret. MVP-level device authentication; future evolution should move to
-    per-device credentials or mutual TLS.
-    """
+    """Dependência FastAPI que valida a chave compartilhada do sync-worker."""
     if not x_device_key or x_device_key != settings.EDGE_SYNC_API_KEY:
         raise UnauthorizedError("Invalid or missing edge device key.")

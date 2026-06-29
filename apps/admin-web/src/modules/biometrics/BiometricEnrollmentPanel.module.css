@@ -11,8 +11,9 @@
 }
 
 .previewImage {
-  max-width: 240px;
-  border-radius: var(--radius-md);
+  max-width: 200px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
 }
 
 .errorAlert {

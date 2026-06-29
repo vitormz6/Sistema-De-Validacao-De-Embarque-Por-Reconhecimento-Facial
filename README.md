@@ -1,4 +1,57 @@
-# Capa
+# Sistema de Validação de Embarque por Reconhecimento Facial
+
+[![CI](https://github.com/vitormz6/Sistema-De-Validacao-De-Embarque-Por-Reconhecimento-Facial/actions/workflows/ci.yml/badge.svg)](https://github.com/vitormz6/Sistema-De-Validacao-De-Embarque-Por-Reconhecimento-Facial/actions/workflows/ci.yml)
+
+## 🚀 Acesso em Produção
+
+| Serviço | URL |
+|---|---|
+| Admin Web (Painel Administrativo) | https://bfv-admin-web.up.railway.app |
+| Operator Web (Validador do Ônibus) | https://operator-web.up.railway.app |
+| Central API (Swagger/Docs) | https://bfv-central-api.up.railway.app/docs |
+| Edge API (Swagger/Docs) | https://edge-api-production-8af2.up.railway.app/docs |
+| Linktree | https://linktr.ee/vitormz5 |
+
+## ⚡ Quick Start (local com Docker)
+
+```bash
+git clone https://github.com/vitormz6/Sistema-De-Validacao-De-Embarque-Por-Reconhecimento-Facial.git
+cd Sistema-De-Validacao-De-Embarque-Por-Reconhecimento-Facial
+
+# Sobe todos os serviços
+docker compose up --build
+
+# Roda as migrations (primeira vez)
+docker compose exec central-api alembic upgrade head
+docker compose exec edge-api alembic upgrade head
+
+# Cria o primeiro administrador
+docker compose exec central-api python -m scripts.seed_admin \
+  --email admin@example.com --password "senha123" --name "Admin"
+```
+
+Acesse:
+- Admin Web: http://localhost:5173
+- Operator Web: http://localhost:5174
+- Central API Docs: http://localhost:8000/docs
+- Edge API Docs: http://localhost:8001/docs
+
+## 🧪 Rodando os Testes
+
+```bash
+# Backend
+cd apps/central-api && pytest
+cd apps/edge-api && pytest
+cd apps/vision-service && pytest
+cd apps/sync-worker && pytest
+
+# Frontend
+cd apps/admin-web && npm test
+```
+
+---
+
+# Capa (RFC)
 
 - **Título do Projeto**: Sistema de Validação de Embarque em Ônibus por Reconhecimento Facial
 - **Nome do Estudante**: Vitor Maiochi Ziehlsdorff
@@ -421,7 +474,7 @@ A seguir, são apresentados os próximos passos previstos para o desenvolvimento
 
 ---
 
-## **4.1. Portfólio I – Etapa Atual (Documentação e Planejamento)**
+## **4.1. Portfólio I – (Documentação e Planejamento)**
 
 Nesta fase, o objetivo principal é **documentar, planejar e validar** o projeto.
 Nenhuma implementação completa do sistema é exigida neste momento.
@@ -449,7 +502,7 @@ Nenhuma implementação completa do sistema é exigida neste momento.
 
 ---
 
-## **4.2. Portfólio II – Próxima Fase (Desenvolvimento e Testes)**
+## **4.2. Portfólio II – (Desenvolvimento e Testes)**
 
 Após a aprovação do RFC, inicia-se a etapa prática do projeto.
 Aqui ocorre o desenvolvimento real do sistema.
@@ -516,16 +569,17 @@ Após validação acadêmica do MVP, a arquitetura permite evolução incrementa
 ## 4.4. Marcos de Acompanhamento (Checkpoints)
 
 
-| **Marco**                           | **Descrição**                                                                                       | **Data Prevista** |
-| ----------------------------------- | --------------------------------------------------------------------------------------------------- | ----------------- |
-| **M1 – RFC Validado**               | Entrega e aprovação do RFC com recorte de MVP e arquitetura modular.                                | Dezembro/2025     |
-| **M2 – Ambiente Base Preparado**    | Serviços principais configurados com Docker Compose e bancos central/edge inicializados.            | Fevereiro/2026    |
-| **M3 – Vision Service Operacional** | Detecção facial, geração de embeddings e comparação facial disponíveis via API.                     | Março/2026        |
-| **M4 – Central API Funcional**      | Módulos de passageiros, biometria, passagens e validações persistindo em PostgreSQL + pgvector.     | Abril/2026        |
-| **M5 – Edge + Sync Básico**         | Validação local/offline ativa no edge e sincronização com outbox pattern funcionando.               | Maio/2026         |
-| **M6 – Admin Web MVP**              | Cadastro de passageiro/biometria/passagem e consulta de validações com dashboard básico.            | Junho/2026        |
-| **M7 – Vertical Slice Integrado**   | Fluxo completo ponta a ponta validado em cenário de teste (cadastro → sync → validação → consulta). | Junho/2026        |
-| **M8 – Entrega Final do TCC**       | Documentação final, análise de resultados e demonstração técnica do MVP offline-first.              | Julho/2026        |
+| **Marco**                           | **Descrição**                                                                                       | **Data**      | **Status** |
+| ----------------------------------- | --------------------------------------------------------------------------------------------------- | ------------- | ---------- |
+| **M1 – RFC Validado**               | Entrega e aprovação do RFC com recorte de MVP e arquitetura modular.                                | Dezembro/2025 | ✅ Concluído |
+| **M2 – Ambiente Base Preparado**    | Serviços principais configurados com Docker Compose e bancos central/edge inicializados.            | Fevereiro/2026 | ✅ Concluído |
+| **M3 – Vision Service Operacional** | Detecção facial, geração de embeddings e comparação facial disponíveis via API.                     | Março/2026    | ✅ Concluído |
+| **M4 – Central API Funcional**      | Módulos de passageiros, biometria, passagens e validações persistindo em PostgreSQL + pgvector.     | Abril/2026    | ✅ Concluído |
+| **M5 – Edge + Sync Básico**         | Validação local/offline ativa no edge e sincronização com outbox pattern funcionando.               | Maio/2026     | ✅ Concluído |
+| **M6 – Admin Web MVP**              | Cadastro de passageiro/biometria/passagem e consulta de validações com dashboard básico.            | Junho/2026    | ✅ Concluído |
+| **M7 – Vertical Slice Integrado**   | Fluxo completo ponta a ponta validado em cenário de teste (cadastro → sync → validação → consulta). | Junho/2026   | ✅ Concluído |
+| **M8 – Deploy em Produção**         | Todos os serviços implantados no Railway com CI/CD via GitHub Actions.                              | Junho/2026    | ✅ Concluído |
+| **M9 – Entrega Final do TCC**       | Documentação final, análise de resultados e demonstração técnica do MVP offline-first.              | Julho/2026    | 🔄 Em andamento |
 
 
 ---

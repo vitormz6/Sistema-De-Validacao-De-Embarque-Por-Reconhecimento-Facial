@@ -10,11 +10,7 @@ from app.shared.enums import TicketStatus, TicketType
 
 
 class Ticket(Base):
-    """
-    Simple ticket linked to a passenger (RF05). Route/fleet association is
-    explicitly out of the MVP scope (see RFC 2 - Limitações) and left for
-    post-MVP evolution.
-    """
+    """Passagem vinculada a um passageiro. Por enquanto sem associação a linha/rota."""
 
     __tablename__ = "tickets"
 
