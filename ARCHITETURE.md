@@ -1,10 +1,6 @@
-﻿-   **No ônibus** roda a validação local, câmera, IA, banco local/cache e sincronização.
--   **Na nuvem/servidor central** ficam cadastros, passagens, gestão da frota, auditoria, dashboards, usuários e relatórios.
--   **No admin React** ficam telas para operadores, gestores, empresas e suporte.
+﻿
 
-A ideia é não depender 100% da internet dentro do ônibus, mas também não deixar cada ônibus isolado.
-
-----------
+---
 
 # 1. Visão macro da arquitetura
 
@@ -21,13 +17,7 @@ A ideia é não depender 100% da internet dentro do ônibus, mas também não de
 │                           ┌─────────────▼──────────────┐     │
 │                           │ PostgreSQL Central          │    │
 │                           │ passageiros, passagens,     │    │
-│                           │ empresas, logs, auditoria   │    │
-│                           └─────────────┬──────────────┘     │
-│                                         │                    │
-│                           ┌─────────────▼──────────────┐     │
-│                           │ Object Storage              │    │
-│                           │ fotos autorizadas, docs,    │    │
-│                           │ evidências, backups         │    │
+│                           │ biometria, logs, validações │    │
 │                           └────────────────────────────┘     │
 │                                                              │
 └───────────────────────────────▲──────────────────────────────┘
@@ -44,7 +34,7 @@ A ideia é não depender 100% da internet dentro do ônibus, mas também não de
 │                           │                     │            │
 │                  ┌────────▼─────────┐   ┌──────▼────────┐    │
 │                  │ Local PostgreSQL │   │ Sync Worker   │    │
-│                  │                  │   │ Outbox/Inbox  │    │
+│                  │                  │   │ Cursor sync   │    │
 │                  └──────────────────┘   └───────────────┘    │
 │                                                              │
 │  ┌────────────────────────────────────────────────────────┐  │
@@ -55,26 +45,34 @@ A ideia é não depender 100% da internet dentro do ônibus, mas também não de
 └──────────────────────────────────────────────────────────────┘
 ```
 
-----------
+---
+
+
 
 # 2. Separação principal: Edge e Central
+
+
 
 ## 2.1. Edge: o que roda no ônibus
 
 Essa é a parte que precisa funcionar mesmo sem internet.
 
 ### Componentes do ônibus
-| Componente | Responsabilidade |
-|--|--|
-| Camera Capture Service | Captura frames da câmera |
-| Vision Service | Detecta face, gera embedding, liveness básico
-|Validation Service|Decide se passageiro pode embarcar
-|Local API|Expõe endpoints locais para a tela do ônibus
-|Local Database|Guarda cache de passageiros, passagens e logs
-|Sync Worker|Sincroniza dados com servidor central
-|Operator UI | Tela simples para motorista/validador
 
-----------
+
+| Componente             | Responsabilidade                              |
+| ---------------------- | --------------------------------------------- |
+| Vision Service         | Detecta face, gera embedding, liveness básico |
+| Validation Service     | Decide se passageiro pode embarcar            |
+| Local API              | Expõe endpoints locais para a tela do ônibus  |
+| Local Database         | Guarda cache de passageiros, passagens e logs |
+| Sync Worker            | Sincroniza dados com servidor central         |
+| Operator UI            | Tela simples para motorista/validador         |
+
+
+---
+
+
 
 ## 2.2. Central: o que roda no servidor
 
@@ -82,63 +80,74 @@ Essa é a parte administrativa e gerencial.
 
 ### Componentes centrais
 
-| Componente |Responsabilidade  |
-|--|--|
-|Admin Web React|Painel administrativo
-|Central API|API principal do sistema
-|Auth Service|Login, permissões e papéis
-|Passenger Service|Cadastro de passageiros
-|Ticket Service| Passagens, validade
-|Fleet Service|ônibus, linhas
-|Biometric Service|Cadastro facial, embeddings
-|Sync Service|Recebe/envia dados dos ônibus
-|Audit Service|Logs, rastreabilidade, LGPD
 
-----------
+| Componente        | Responsabilidade              |
+| ----------------- | ----------------------------- |
+| Admin Web React   | Painel administrativo         |
+| Central API       | API principal do sistema      |
+| Auth Service      | Login, permissões e papéis    |
+| Passenger Service | Cadastro de passageiros       |
+| Ticket Service    | Passagens, validade           |
+| Biometric Service | Cadastro facial, embeddings   |
+| Sync Service      | Recebe/envia dados dos ônibus |
+
+
+---
+
+
 
 # 3. Stack
+
+
 
 ## 3.1. Backend
 
 **FastAPI** para a API principal e para o edge.
 
-| Parte | Tecnologia |
-|--|--|
-|API central|FastAPI
-|API local do ônibus|FastAPI
-|Validação de dados|Pydantic
-|ORM|SQLAlchemy
-|Migrações|Alembic
-|Cache|Redis
+
+| Parte               | Tecnologia                            |
+| ------------------- | ------------------------------------- |
+| API central         | FastAPI                               |
+| API local do ônibus | FastAPI                               |
+| Validação de dados  | Pydantic                              |
+| ORM                 | SQLAlchemy                            |
+| Migrações           | Alembic                               |
 
 
+---
 
-----------
+
 
 ## 3.2. IA / Visão Computacional
 
-|Função| Tecnologia |
-|--|--|
-|Captura|OpenCV
-|Detecção facial|SCRFD
-|Reconhecimento facial|ArcFace/InsightFace
-|Inferência otimizada|ONNX Runtime
-|Busca vetorial|pgvector
-|Liveness básico|módulo próprio inicialmente
-|Deploy IA edge|ONNX Runtime / Docker
+
+| Função                | Tecnologia                  |
+| --------------------- | --------------------------- |
+| Captura               | OpenCV                      |
+| Detecção facial       | SCRFD                       |
+| Reconhecimento facial | ArcFace/InsightFace         |
+| Inferência otimizada  | ONNX Runtime                |
+| Busca vetorial        | pgvector                    |
+| Liveness básico       | módulo próprio inicialmente |
+| Deploy IA edge        | ONNX Runtime / Docker       |
+
 
 O ONNX Runtime é apropriado porque permite rodar modelos de machine learning em diferentes hardwares e sistemas operacionais, incluindo cenários IoT/edge.
 
-----------
+---
+
+
 
 ## 3.3. Banco
 
 **PostgreSQL + pgvector** no central. Para o edge, existem duas opções:
 
-|Cenário| Banco |
-|--|--|
-|Produto real robusto|PostgreSQL local
-|Frota grande|PostgreSQL local + sync incremental
+
+| Cenário              | Banco                               |
+| -------------------- | ----------------------------------- |
+| Produto real robusto | PostgreSQL local                    |
+| Frota grande         | PostgreSQL local + sync incremental |
+
 
 Minha escolha para produto real:
 
@@ -146,27 +155,35 @@ Minha escolha para produto real:
 Central: PostgreSQL + pgvectorEdge: PostgreSQL
 ```
 
-----------
+---
+
+
 
 ## 3.4. Frontend
 
-|Interface| Tecnologia |
-|--|--|
-|Admin web|React + TypeScript
-|Design System|Ant Design
-|Estado remoto|TanStack Query
-|Formulários|React Hook Form + Zod
-|Build|Vite
-|Testes|Vitest + Testing Library
-|E2E|Playwright
 
-----------
+| Interface     | Tecnologia               |
+| ------------- | ------------------------ |
+| Admin web     | React + TypeScript       |
+| Design System | Ant Design               |
+| Estado remoto | TanStack Query           |
+| Formulários   | React Hook Form + Zod    |
+| Build         | Vite                     |
+| Testes        | Vitest + Testing Library |
+| E2E           | Playwright               |
+
+
+---
+
+
 
 # 4. Aplicações do sistema
 
 Eu dividiria em **5 aplicações principais**.
 
-----------
+---
+
+
 
 ## 4.1. `admin-web`
 
@@ -176,26 +193,21 @@ Painel React usado por administradores, operadores, gestores e suporte.
 admin-web/
 ├── src/
 │   ├── app/
-│   ├── pages/
 │   ├── modules/
 │   │   ├── auth/
+│   │   ├── biometrics/
 │   │   ├── dashboard/
 │   │   ├── passengers/
-│   │   ├── enrollments/
 │   │   ├── tickets/
-│   │   ├── fleet/
-│   │   ├── devices/
-│   │   ├── validations/
-│   │   ├── reports/
-│   │   └── audit/
+│   │   └── validations/
 │   ├── components/
-│   ├── services/
-│   ├── hooks/
-│   ├── schemas/
-│   └── routes/
+│   ├── styles/
+│   └── test/
 ```
 
-----------
+---
+
+
 
 ## 4.2. `central-api`
 
@@ -209,20 +221,22 @@ central-api/
 │ │ ├── config.py  
 │ │ └── logging.py  
 │ ├── modules/  
+│ │ ├── auth/  
 │ │ ├── passengers/  
 │ │ ├── biometrics/  
 │ │ ├── tickets/  
-│ │ ├── fleet/  
 │ │ ├── validations/  
 │ │ ├── sync/  
-│ │ └── audit/  
+│ │ └── health/  
 │ ├── database/  
 │ └── shared/  
 ├── migrations/  
 └── tests/
 ```
 
-----------
+---
+
+
 
 ## 4.3. `edge-api`
 
@@ -233,22 +247,22 @@ edge-api/
 ├── app/  
 │ ├── main.py  
 │ ├── modules/  
-│ │ ├── camera/  
+│ │ ├── cache/  
 │ │ ├── validation/  
-│ │ ├── sync/  
 │ │ └── health/  
 │ ├── database/  
 │ └── shared/
 ```
 
+- validar embarque;
+- consultar status;
+- receber atualização de passageiros/passagens;
+- registrar logs;
+- sincronizar.
 
--   validar embarque;
--   consultar status;
--   receber atualização de passageiros/passagens;
--   registrar logs;
--   sincronizar.
+---
 
-----------
+
 
 ## 4.4. `vision-service`
 
@@ -258,27 +272,23 @@ Serviço isolado para IA.
 vision-service/
 ├── app/
 │   ├── main.py
-│   ├── camera/
-│   │   ├── capture.py
-│   │   └── frame_buffer.py
-│   ├── detection/
-│   │   └── scrfd_detector.py
-│   ├── recognition/
-│   │   └── arcface_embedder.py
-│   ├── liveness/
-│   │   └── liveness.py
-│   ├── quality/
-│   │   └── face_quality.py
+│   ├── api/
+│   │   └── router.py
+│   ├── core/
+│   ├── pipeline/
+│   │   ├── face_engine.py
+│   │   ├── liveness.py
+│   │   ├── quality.py
+│   │   └── service.py
 │   └── schemas/
-├── models/
-│   ├── scrfd.onnx
-│   └── arcface.onnx
 └── tests/
 ```
 
 Aqui fica tudo que é “IA”. Isso evita misturar visão computacional com regra de negócio.
 
-----------
+---
+
+
 
 ## 4.5. `sync-worker`
 
@@ -288,44 +298,54 @@ Worker de sincronização entre ônibus e central.
 sync-worker/
 ├── app/
 │   ├── main.py
-│   ├── outbox/
-│   ├── inbox/
-│   ├── conflict_resolution/
-│   └── retry_policy/
+│   ├── runner.py
+│   ├── central_client.py
+│   ├── core/
+│   ├── database/
+│   └── modules/
+│       ├── cache/
+│       ├── sync_state/
+│       └── validation/
 ```
 
 Esse cara resolve o maior problema real: internet ruim.
 
-----------
+---
+
+
 
 # 5. Módulos do backend central
+
+
 
 ## 5.3. Passageiros
 
 Responsável por:
 
--   cadastro pessoal;
--   documento;
--   foto;
--   status;
--   biometria;
--   vínculo com cartões/passagens;
--   histórico de validações.
+- cadastro pessoal;
+- documento;
+- foto;
+- status;
+- biometria;
+- vínculo com cartões/passagens;
+- histórico de validações.
 
-----------
+---
+
+
 
 ## 5.4. Biometria
 
 Responsável por:
 
--   cadastro facial;
--   geração de embedding;
--   armazenamento do vetor;
--   versionamento do modelo;
--   revogação de biometria;
--   recadastramento;
--   score mínimo;
--   qualidade da imagem;
+- cadastro facial;
+- geração de embedding;
+- armazenamento do vetor;
+- versionamento do modelo;
+- revogação de biometria;
+- recadastramento;
+- score mínimo;
+- qualidade da imagem;
 
 Ponto importante: **o modelo precisa ter versão**.
 
@@ -341,17 +361,20 @@ created_at = 2026-06-02
 
 Por quê? Porque se um dia você trocar o modelo, os embeddings antigos podem não ser compatíveis.
 
-----------
+---
+
+
 
 ## 5.5. Passagens
 
 Responsável por:
 
--   passagem ativa;
--   validade;
--   linha;
--   validade por horário/rota.
-----------
+- passagem ativa;
+- validade.
+
+---
+
+
 
 ## 5.8. Validações
 
@@ -381,22 +404,9 @@ DENIED_SPOOF_SUSPECTED
 DENIED_PASSENGER_BLOCKED
 ```
 
-----------
+---
 
-## 5.9. Auditoria
 
-Tudo que envolve dado sensível precisa deixar rastro:
-
-```
-quem acessou
-quando acessou
-qual dado acessou
-qual ação executou
-IP/origem
-antes/depois quando aplicável
-```
-
-----------
 
 # 6. Banco de dados central
 
@@ -406,32 +416,22 @@ Modelo inicial de tabelas:
 users
 
 passengers
-passenger_documents
-passenger_photos
 face_embeddings
-biometric_enrollments
 
 tickets
-ticket_usages
-
-routes
-route_stops
 
 boarding_validations
-validation_events
-validation_evidences
 
-sync_batches
-sync_outbox
-sync_inbox
-sync_conflicts
-
-audit_logs
+sync_device_state
 ```
 
-----------
+---
+
+
 
 ## 6.1. Tabelas principais
+
+
 
 ### `passengers`
 
@@ -443,7 +443,10 @@ status
 created_at
 updated_at
 ```
-----------
+
+---
+
+
 
 ### `face_embeddings`
 
@@ -463,7 +466,9 @@ revoked_at
 
 Aqui entra o pgvector.
 
-----------
+---
+
+
 
 ### `tickets`
 
@@ -473,12 +478,13 @@ passenger_id
 status
 valid_from
 valid_until
-route_id
 created_at
 updated_at
 ```
 
-----------
+---
+
+
 
 ### `boarding_validations`
 
@@ -498,26 +504,9 @@ synced_at
 created_at
 ```
 
-----------
+---
 
-### `sync_outbox`
 
-```
-id
-aggregate_type
-aggregate_id
-event_type
-payload
-status
-attempts
-created_at
-sent_at
-error_message
-```
-
-Essa tabela é essencial para o offline-first.
-
-----------
 
 # 7. Banco local do ônibus
 
@@ -528,33 +517,31 @@ local_passengers
 local_face_embeddings
 local_tickets
 local_validation_logs
-local_sync_outbox
-local_sync_inbox
+local_sync_state
 ```
+
+
 
 ## Dados que vão para o ônibus
 
 ```
-passageiros ativos linha
+passageiros ativos
 embeddings ativos
 passagens válidas
-regras de validação
-configurações do dispositivo
-versão dos modelos
 ```
+
+
 
 ## Dados que voltam do ônibus
 
 ```
 logs de validação
-eventos de falha
-eventos de saúde
 tentativas negadas
-uso de passagem
-evidências minimizadas
 ```
 
-----------
+---
+
+
 
 # 8. Fluxo de cadastro facial
 
@@ -582,7 +569,9 @@ Marca passageiro como biometria ativa
 Sync envia para ônibus aplicáveis
 ```
 
-----------
+---
+
+
 
 # 9. Fluxo de validação no ônibus
 
@@ -612,13 +601,17 @@ Registra log local
 Sync envia evento ao central quando houver conexão
 ```
 
-----------
+---
+
+
 
 # 10. Telas do Admin React
 
 Agora a parte que você pediu: **telas de admin, cadastro, operação, tudo.**
 
-----------
+---
+
+
 
 ## 10.2. Dashboard geral
 
@@ -628,26 +621,14 @@ Agora a parte que você pediu: **telas de admin, cadastro, operação, tudo.**
 
 Cards:
 
--   embarques hoje;
--   autorizados;
--   negados;
--   taxa de baixa confiança;
--   ônibus online;
--   ônibus offline;
--   dispositivos com falha;
--   sincronizações pendentes;
--   passageiros ativos;
--   passagens ativas.
+- validações autorizadas;
+- validações negadas;
+- total de validações;
+- sincronização por dispositivo.
 
-Gráficos:
+---
 
--   validações por hora;
--   negações por motivo;
--   top linhas com maior fluxo;
--   dispositivos com mais erro;
--   comparação online/offline.
 
-----------
 
 ## 10.3. Passageiros
 
@@ -660,15 +641,14 @@ Gráficos:
 
 Funcionalidades:
 
--   listar passageiros;
--   filtrar por status;
--   buscar por nome;
--   cadastrar passageiro;
--   editar dados;
--   bloquear passageiro;
--   consultar histórico;
--   revogar biometria;
--   reenviar para sincronização.
+- listar passageiros;
+- filtrar por status;
+- buscar por nome;
+- cadastrar passageiro;
+- editar dados;
+- bloquear passageiro;
+- consultar histórico;
+- revogar biometria.
 
 Campos:
 
@@ -676,13 +656,12 @@ Campos:
 nome
 documento
 data de nascimento
-telefone
-e-mail
 status
-observações / se precisar sei lá
 ```
 
-----------
+---
+
+
 
 ## 10.4. Cadastro biométrico
 
@@ -695,16 +674,16 @@ Tela muito importante.
 
 Funcionalidades:
 
--   capturar foto pela webcam;
--   upload de imagem;
--   validar qualidade;
--   detectar face;
--   mostrar score de qualidade;
--   gerar embedding;
--   confirmar cadastro;
--   exibir modelo usado;
--   revogar biometria;
--   recadastrar.
+- capturar foto pela webcam;
+- upload de imagem;
+- validar qualidade;
+- detectar face;
+- mostrar score de qualidade;
+- gerar embedding;
+- confirmar cadastro;
+- exibir modelo usado;
+- revogar biometria;
+- recadastrar.
 
 Status:
 
@@ -717,7 +696,9 @@ Imagem inválida
 Baixa qualidade
 ```
 
-----------
+---
+
+
 
 ## 10.6. Passagens
 
@@ -729,13 +710,10 @@ Baixa qualidade
 
 Funcionalidades:
 
--   criar passagem;
--   associar passageiro;
--   definir validade;
--   associar linha/rota;
--   bloquear passagem;
--   consultar uso;
--   importar lote de passagens.
+- criar passagem;
+- associar passageiro;
+- definir validade;
+- bloquear passagem.
 
 Tipos:
 
@@ -743,24 +721,9 @@ Tipos:
 unitáriamensalestudantecolaboradorvale-transporteespecial
 ```
 
-----------
+---
 
-## 10.7. Linhas e rotas
 
-```
-/routes
-/routes/new
-/routes/:id
-```
-
-Funcionalidades:
-
--   cadastrar linha;
--   cadastrar pontos;
--   associar ônibus;
--   associar dispositivos;
-
-----------
 
 ## 10.10. Validações de embarque
 
@@ -771,20 +734,18 @@ Funcionalidades:
 
 Filtros:
 
--   data;
--   passageiro;
--   linha;
--   status;
--   score;
--   motivo de negação;
--   validações offline.
+- data;
+- passageiro;
+- status;
+- score;
+- motivo de negação;
+- validações offline.
 
 Colunas:
 
 ```
 data/hora
 passageiro
-linha
 status
 score
 motivo
@@ -803,65 +764,9 @@ motivo
 log técnico
 ```
 
-----------
+---
 
-## 10.11. Auditoria
 
-```
-/audit
-```
-
-Funcionalidades:
-
--   quem acessou dado biométrico;
--   quem cadastrou passageiro;
--   quem revogou consentimento;
--   quem alterou passagem;
--   quem vinculou dispositivo;
--   exportação CSV;
--   filtros por usuário, ação e período.
-
-----------
-
-## 10.12. Relatórios
-
-```
-/reports
-```
-
-Relatórios:
-
--   embarques por período;
--   uso por linha;
--   passageiros ativos;
--   taxa de negação;
--   taxa de baixa confiança;
--   dispositivos com falha;
--   passagens utilizadas;
--   passageiros mais recorrentes;
--   operação offline por veículo.
-
-----------
-
-## 10.13. Configurações
-
-```
-/settings
-```
-
-Configurações:
-
--   threshold mínimo de reconhecimento;
--   distância máxima;
--   política de baixa confiança;
--   tempo de cooldown entre embarques;
--   retenção de logs;
--   retenção de imagens;
--   versão ativa dos modelos;
--   regras de sincronização;
--   usuários;
-
-----------
 
 # 11. Tela local do ônibus
 
@@ -882,16 +787,19 @@ Câmera: OK
 Última sincronização: 10:32
 ```
 
+
+
 ## Autorizado
 
 ```
 EMBARQUE AUTORIZADO
 
 Passageiro: João S.
-Linha: 101
 Passagem: Ativa
 Confiança: 91%
 ```
+
+
 
 ## Negado
 
@@ -900,6 +808,8 @@ EMBARQUE NEGADO
 
 Motivo: passagem expirada
 ```
+
+
 
 ## Baixa confiança
 
@@ -910,6 +820,8 @@ Motivo: baixa confiança facial
 Ação: validar manualmente ou usar QR Code/cartão
 ```
 
+
+
 ## Sem internet
 
 ```
@@ -919,9 +831,12 @@ Validações locais ativas
 Eventos serão sincronizados depois
 ```
 
-----------
+---
+
+
 
 # 12. APIs principais
+
 
 
 ## Passageiros
@@ -931,10 +846,11 @@ GET    /passengers
 POST   /passengers
 GET    /passengers/{id}
 PUT    /passengers/{id}
-DELETE /passengers/{id}
 POST   /passengers/{id}/block
-POST   /passengers/{id}/unblock
+POST   /passengers/{id}/activate
 ```
+
+
 
 ## Biometria
 
@@ -944,6 +860,8 @@ GET  /passengers/{id}/biometrics
 POST /passengers/{id}/biometrics/revoke
 POST /biometrics/compare
 ```
+
+
 
 ## Passagens
 
@@ -956,12 +874,16 @@ POST /tickets/{id}/block
 POST /tickets/{id}/activate
 ```
 
+
+
 ## Validações
 
 ```
 GET  /validations
 GET  /validations/{id}
 ```
+
+
 
 ## Sync
 
@@ -972,49 +894,44 @@ POST /sync/ack
 GET  /sync/status
 ```
 
+
+
 ## Edge local
 
 ```
 POST /local/validate-boarding
 GET  /local/device/status
 GET  /local/sync/status
-POST /local/sync/run
 ```
 
-----------
+---
+
+
 
 # 13. Comunicação entre edge e central
 
-Com **outbox pattern**.
+O edge grava cada evento localmente e o sync-worker envia depois (push), enquanto puxa atualizações da central por cursor incremental (pull).
 
 ## No ônibus
 
-Quando algo acontece:
+Quando uma validação acontece, o evento é gravado primeiro localmente:
 
 ```
-validação criada
-passagem usada
-erro de câmera
-erro de IA
+local_validation_logs
 ```
 
-Salva primeiro localmente:
-
-```
-local_sync_outbox
-```
-
-Depois o sync-worker tenta enviar.
+Depois o sync-worker envia os registros pendentes.
 
 Se falhar:
 
 ```
-incrementa attempts
-mantém status PENDING
-tenta depois
+mantém o registro como não sincronizado
+tenta no próximo ciclo
 ```
 
-----------
+---
+
+
 
 ## No central
 
@@ -1025,15 +942,16 @@ novos passageiros
 embeddings atualizados
 passagens atualizadas
 bloqueios
-novas configurações
-nova versão de modelo
 ```
 
 O ônibus aplica localmente.
 
-----------
+---
+
+
 
 # 14. Segurança
+
 
 
 ## 14.2. Dados sensíveis
@@ -1049,20 +967,26 @@ minimização de imagens
 armazenar embedding, não imagem crua sempre
 ```
 
-----------
+---
+
+
 
 ## 14.3. Imagens
 
 Evitaria salvar imagem de toda validação.
 
-|Caso| Salvar Imagem? |
-|--|--|
-|Autorizado normal|Não
-|Negado por baixa confiança|Opcional, com retenção curta
-|Suspeita de fraude|Opcional, com regra clara
-|Auditoria/LGPD|Somente se necessário
 
-----------
+| Caso                       | Salvar Imagem?               |
+| -------------------------- | ---------------------------- |
+| Autorizado normal          | Não                          |
+| Negado por baixa confiança | Opcional, com retenção curta |
+| Suspeita de fraude         | Opcional, com regra clara    |
+| Auditoria/LGPD             | Somente se necessário        |
+
+
+---
+
+
 
 # 15. Observabilidade
 
@@ -1079,6 +1003,8 @@ taxa de baixa confiança
 sync pendente
 ```
 
+
+
 ## Logs
 
 Formato JSON:
@@ -1093,19 +1019,23 @@ Formato JSON:
 }
 ```
 
+
+
 ## Health checks
 
 ```
 GET /health
 GET /health/database
-GET /health/camera
 GET /health/models
-GET /health/sync
 ```
 
-----------
+---
+
+
 
 # 16. Deploy
+
+
 
 ## Ambiente local/dev
 
@@ -1116,17 +1046,23 @@ Docker Compose
 Serviços:
 
 ```
-admin-web
+postgres-central
+postgres-edge
 central-api
-postgres
-redis
+edge-api
 vision-service
 sync-worker
+admin-web
+operator-web
+prometheus
+grafana
 ```
 
-----------
+---
 
-## Produção central
+
+
+## Produção central 🔜 (visão-alvo — o MVP usa Railway + Docker, ver README)
 
 ```
 PostgreSQL gerenciado
@@ -1137,7 +1073,9 @@ Load Balancer
 Observabilidade
 ```
 
-----------
+---
+
+
 
 ## Produção edge/ônibus
 
@@ -1151,7 +1089,9 @@ sync-worker local
 logs rotacionados
 ```
 
-----------
+---
+
+
 
 # 17. Estrutura de monorepo
 
@@ -1175,7 +1115,9 @@ boarding-face-validation/
 └── README.md -> e um readme.md em cada "app"
 ```
 
-----------
+---
+
+
 
 # 18. Arquitetura no TCC
 
@@ -1185,9 +1127,11 @@ O nome técnico poderia ser:
 
 E a tese técnica seria:
 
-> O sistema propõe uma arquitetura distribuída em que a validação de embarque ocorre localmente no veículo, reduzindo dependência de conectividade, enquanto a gestão, auditoria, sincronização e análise operacional são centralizadas em uma plataforma administrativa web.
+> O sistema propõe uma arquitetura distribuída em que a validação de embarque ocorre localmente no veículo, reduzindo dependência de conectividade, enquanto a gestão, sincronização e análise operacional são centralizadas em uma plataforma administrativa web.
 
-----------
+---
+
+
 
 # 19. Resumo final da arquitetura ideal
 
@@ -1218,24 +1162,17 @@ PostgreSQL local no ônibus
 Infra:
 Docker Compose no edge
 Docker
-Object Storage
 Observabilidade
 
 Segurança:
 Criptografia
-Auditoria
 Retenção controlada
 
 Admin:
 passageiros
 biometria
 passagens
-frota
-linhas
 validações
-relatórios
-auditoria
-configurações
 ```
 
 Minha recomendação: **não faça como um app único**. Faça como uma plataforma modular com **central + edge + IA isolada + admin web**. Isso transforma seu TCC de “sistema que reconhece rosto” em um projeto de arquitetura de software real, vendável e defensável.

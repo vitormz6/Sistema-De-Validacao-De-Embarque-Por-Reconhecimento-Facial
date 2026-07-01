@@ -8,7 +8,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     APP_NAME: str = "Boarding Face Validation - Central API"
     APP_VERSION: str = "0.1.0"
-    ENVIRONMENT: Literal["local", "development", "staging", "production"] = "local"
+    ENVIRONMENT: Literal["local", "development",
+                         "staging", "production"] = "local"
     DEBUG: bool = True
 
     DATABASE_URL: str = Field(
@@ -30,6 +31,8 @@ class Settings(BaseSettings):
     # Edge devices (sync) authentication — shared key for MVP.
     # Future evolution: per-device credentials / mTLS.
     EDGE_SYNC_API_KEY: str = Field(default="change-me-edge-sync-key")
+
+    SYNC_OVERLAP_SECONDS: int = Field(default=30)
 
     # Vision Service integration
     VISION_SERVICE_URL: str = Field(default="http://vision-service:8002")

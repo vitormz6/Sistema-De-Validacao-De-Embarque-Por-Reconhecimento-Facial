@@ -1,7 +1,9 @@
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import settings
 from app.modules.biometrics.repository import FaceEmbeddingRepository
 from app.modules.passengers.repository import PassengerRepository
 from app.modules.sync.model import SyncDeviceState
@@ -33,11 +35,17 @@ class SyncService:
         self.validation_service = ValidationService(session)
 
     async def pull(self, device_id: str, since: datetime | None) -> SyncPullResponse:
-        passengers = await self.passenger_repository.list_active(since=since)
-        embeddings = await self.embedding_repository.list_active(since=since)
-        tickets = await self.ticket_repository.list_active(since=since)
+        generated_at = await self._database_now()
 
-        generated_at = datetime.now(timezone.utc)
+        effective_since = since
+        if since is not None:
+            effective_since = since - \
+                timedelta(seconds=settings.SYNC_OVERLAP_SECONDS)
+
+        passengers = await self.passenger_repository.list_active(since=effective_since)
+        embeddings = await self.embedding_repository.list_active(since=effective_since)
+        tickets = await self.ticket_repository.list_active(since=effective_since)
+
         await self.device_repository.register_pull(device_id, generated_at)
         await self.session.commit()
 
@@ -78,6 +86,11 @@ class SyncService:
             ],
         )
 
+    async def _database_now(self) -> datetime:
+
+        result = await self.session.execute(select(func.now()))
+        return result.scalar_one()
+
     async def push(
         self, device_id: str, events: list[ValidationEventIngest]
     ) -> SyncPushResponse:
@@ -116,7 +129,8 @@ class SyncService:
         """Lista todos os devices registrados para o dashboard do admin."""
         device_states = await self.device_repository.list_all()
         return SyncDeviceListResponse(
-            devices=[_to_status_response(device_state) for device_state in device_states]
+            devices=[_to_status_response(device_state)
+                     for device_state in device_states]
         )
 
 

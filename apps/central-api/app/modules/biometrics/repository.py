@@ -1,7 +1,7 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime
 
-from sqlalchemy import or_, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.modules.biometrics.model import FaceEmbedding
@@ -59,7 +59,8 @@ class FaceEmbeddingRepository:
             # is excluded from the snapshot — causing a FK violation when the
             # sync-worker tries to upsert the embedding before its passenger.
             statement = (
-                statement.join(Passenger, FaceEmbedding.passenger_id == Passenger.id)
+                statement.join(
+                    Passenger, FaceEmbedding.passenger_id == Passenger.id)
                 .where(FaceEmbedding.active.is_(True))
                 .where(Passenger.status == PassengerStatus.ACTIVE.value)
             )
@@ -81,7 +82,8 @@ class FaceEmbeddingRepository:
             return
 
         active_embedding.active = False
-        active_embedding.revoked_at = datetime.now(timezone.utc)
+
+        active_embedding.revoked_at = func.now()
         await self.session.flush()
 
     async def find_nearest(
@@ -97,10 +99,12 @@ class FaceEmbeddingRepository:
         """
         distance = FaceEmbedding.embedding.cosine_distance(embedding)
 
-        statement = select(FaceEmbedding, distance).where(FaceEmbedding.active.is_(True))
+        statement = select(FaceEmbedding, distance).where(
+            FaceEmbedding.active.is_(True))
 
         if passenger_id is not None:
-            statement = statement.where(FaceEmbedding.passenger_id == passenger_id)
+            statement = statement.where(
+                FaceEmbedding.passenger_id == passenger_id)
 
         statement = statement.order_by(distance.asc()).limit(limit)
 
